@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#3b5bdb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="背单词">
+  <title>英语期中背单词</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-dot" aria-hidden="true">Aa</span>
+          <h1 class="brand-title">英语期中背单词</h1>
+        </div>
+        <div class="header-right">
+          <span id="offline-badge" class="offline-badge hidden">离线模式</span>
+          <span id="header-progress-pill" class="progress-pill">已认识 0/0</span>
+        </div>
+      </div>
+    </header>
+
+    <main id="app-main" class="app-main" aria-live="polite">
+      <div class="loading-box">正在加载词库...</div>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <nav class="bottom-nav" aria-label="功能导航">
+      <button type="button" class="nav-btn active" data-tab="flashcard">
+        <span class="nav-icon" aria-hidden="true">🃏</span>
+        <span class="nav-label">闪卡</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="quiz">
+        <span class="nav-icon" aria-hidden="true">☑️</span>
+        <span class="nav-label">四选一</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="exam">
+        <span class="nav-icon" aria-hidden="true">📝</span>
+        <span class="nav-label">模考</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="browse">
+        <span class="nav-icon" aria-hidden="true">📚</span>
+        <span class="nav-label">词库</span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="progress">
+        <span class="nav-icon" aria-hidden="true">💾</span>
+        <span class="nav-label">进度</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
