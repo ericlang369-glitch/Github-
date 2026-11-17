@@ -523,15 +523,12 @@ button {
   cursor: grabbing;
 }
 
-/* Swipe state borders */
+/* Swipe state borders (neutral navigation accent) */
 .fc-card.swipe-known,
-.flashcard-card.swipe-known {
-  border-color: var(--success);
-}
-
+.flashcard-card.swipe-known,
 .fc-card.swipe-unknown,
 .flashcard-card.swipe-unknown {
-  border-color: var(--danger);
+  border-color: rgba(79, 70, 229, 0.38);
 }
 
 .fc-card.swipe-fuzzy,
@@ -546,20 +543,28 @@ button {
   top: 16px;
   right: 16px;
   z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 5px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   opacity: 0;
   pointer-events: none;
-  border: 1px solid transparent;
+  border: 1px solid rgba(79, 70, 229, 0.22);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--accent, #4F46E5);
+  backdrop-filter: blur(8px);
   transition: opacity 0.12s ease;
 }
 
 .swipe-badge-know {
-  background: var(--success-soft);
-  color: var(--success);
-  border-color: var(--success-border);
+  left: 16px;
+  right: auto;
+  background: #EEF2FF;
+  color: var(--accent, #4F46E5);
+  border-color: rgba(79, 70, 229, 0.25);
 }
 
 .swipe-badge-fuzzy {
@@ -569,9 +574,9 @@ button {
 }
 
 .swipe-badge-unknown {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border-color: var(--danger-border);
+  background: #EEF2FF;
+  color: var(--accent, #4F46E5);
+  border-color: rgba(79, 70, 229, 0.25);
 }
 
 .swipe-badge.show,
@@ -609,32 +614,32 @@ button {
   color: #FFFFFF;
 }
 
-/* Fly-out animations */
+/* Fly-out animations (clean horizontal page slide) */
 .fly-right {
-  animation: flyRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: flyRight 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
 }
 
 .fly-left {
-  animation: flyLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: flyLeft 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
 }
 
 .fly-up {
-  animation: flyUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: flyUp 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
 }
 
 @keyframes flyRight {
   to {
-    transform: translate3d(120%, -12px, 0) rotate(10deg);
+    transform: translate3d(100%, 0, 0);
     opacity: 0;
   }
 }
 
 @keyframes flyLeft {
   to {
-    transform: translate3d(-120%, -12px, 0) rotate(-10deg);
+    transform: translate3d(-100%, 0, 0);
     opacity: 0;
   }
 }

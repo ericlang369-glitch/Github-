@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'vocab-static-v5';
-const DATA_CACHE = 'vocab-data-v5';
+const STATIC_CACHE = 'vocab-static-v6';
+const DATA_CACHE = 'vocab-data-v6';
 const CORE_ASSETS = [
   './',
   './index.html',

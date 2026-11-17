@@ -698,7 +698,7 @@
       card.classList.add(flyClass);
       setTimeout(() => {
         navFn();
-      }, 240);
+      }, 190);
     };
 
     card.addEventListener('pointerdown', (e) => {
@@ -727,8 +727,7 @@
 
       const flipTransform = state.flashcard.flipped ? ' rotateY(180deg)' : '';
       if (Math.abs(dx) >= Math.abs(dy)) {
-        const rot = Math.max(-12, Math.min(12, dx * 0.05));
-        card.style.transform = `translate3d(${dx}px, ${dy * 0.18}px, 0) rotate(${rot}deg)${flipTransform}`;
+        card.style.transform = `translate3d(${dx}px, 0, 0)${flipTransform}`;
         if (dx > 36) {
           card.classList.add('swipe-known');
           if (badgePrev) badgePrev.classList.add('is-visible');
