@@ -1618,7 +1618,7 @@
         ${state.importError ? `<div style="color:var(--danger);font-size:13px;margin-bottom:8px;">${escapeHtml(state.importError)}</div>` : ''}
         ${state.importSuccess ? `<div style="color:var(--success);font-size:13px;margin-bottom:8px;">${escapeHtml(state.importSuccess)}</div>` : ''}
         <div class="btn-row">
-          <button type="button" id="import-apply-btn" class="btn-primary">${ICONS.download} 导入并覆盖当前进度</button>
+          <button type="button" id="import-apply-btn" class="btn-primary">${ICONS.download} 导入并覆盖</button>
           <button type="button" id="reset-progress-btn" class="btn-ghost" style="color:var(--danger);">${ICONS.trash} 清空本地进度</button>
         </div>
       </div>
@@ -1884,7 +1884,7 @@
         }
         state.exam.phase = 'result';
         render();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo(0, 0);
         return;
       }
       const gradeBtn = e.target.closest('[data-grade-s]');
