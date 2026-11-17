@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'vocab-app-progress-v1';
+  const FLASHCARD_STORAGE_KEY = 'vocab-app-flashcard-v1';
   const MASTERY_LABELS = {
     known: '认识',
     fuzzy: '模糊',
@@ -463,6 +464,62 @@
   }
 
   // ---------- F1 Flashcard View ----------
+  function saveFlashcardState() {
+    try {
+      const { unit, type, mastery, order, index } = state.flashcard;
+      localStorage.setItem(
+        FLASHCARD_STORAGE_KEY,
+        JSON.stringify({ unit, type, mastery, order, index })
+      );
+    } catch {
+      // Ignore storage write errors
+    }
+  }
+
+  function clearFlashcardState() {
+    try {
+      localStorage.removeItem(FLASHCARD_STORAGE_KEY);
+    } catch {
+      // Ignore storage remove errors
+    }
+  }
+
+  function restoreFlashcardState() {
+    try {
+      const raw = localStorage.getItem(FLASHCARD_STORAGE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.order)) {
+        return false;
+      }
+
+      const validOrder = parsed.order.filter((id) => typeof id === 'string' && state.wordMap.has(id));
+      if (validOrder.length === 0) return false;
+
+      const rawIndex = Number.isInteger(parsed.index) ? parsed.index : 0;
+      const clampedIndex = Math.max(0, Math.min(rawIndex, validOrder.length - 1));
+
+      state.flashcard.unit = typeof parsed.unit === 'string' ? parsed.unit : 'all';
+      state.flashcard.type = typeof parsed.type === 'string' ? parsed.type : 'all';
+      state.flashcard.mastery = typeof parsed.mastery === 'string' ? parsed.mastery : 'all';
+      state.flashcard.order = validOrder;
+      state.flashcard.index = clampedIndex;
+      state.flashcard.flipped = false;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function prevFlashcard() {
+    const len = state.flashcard.order.length;
+    if (len === 0) return;
+    state.flashcard.index = (state.flashcard.index - 1 + len) % len;
+    state.flashcard.flipped = false;
+    saveFlashcardState();
+    render();
+  }
+
   function rebuildFlashcardDeck(keepCurrentId = false) {
     const prevId = keepCurrentId ? state.flashcard.order[state.flashcard.index] : null;
     const list = filterWords(state.flashcard.unit, state.flashcard.type, state.flashcard.mastery);
@@ -481,16 +538,10 @@
     const wordId = order[index];
     setWordMastery(wordId, status);
 
-    // Move to next card; if filtering by mastery and word no longer matches, remove it from current deck
-    if (state.flashcard.mastery !== 'all' && state.flashcard.mastery !== status) {
-      state.flashcard.order.splice(index, 1);
-      if (state.flashcard.index >= state.flashcard.order.length) {
-        state.flashcard.index = 0;
-      }
-    } else {
-      state.flashcard.index = (index + 1) % order.length;
-    }
+    // Keep rated card in current deck so "上一张" can return to it with updated badge
+    state.flashcard.index = (index + 1) % order.length;
     state.flashcard.flipped = false;
+    saveFlashcardState();
     render();
   }
 
@@ -1339,6 +1390,7 @@
       if (fcUnit) {
         state.flashcard.unit = fcUnit.dataset.fcUnit;
         rebuildFlashcardDeck();
+        saveFlashcardState();
         render();
         return;
       }
@@ -1346,6 +1398,7 @@
         state.flashcard.order = shuffle(state.flashcard.order);
         state.flashcard.index = 0;
         state.flashcard.flipped = false;
+        saveFlashcardState();
         render();
         showToast('已随机打乱卡片顺序');
         return;
@@ -1356,12 +1409,7 @@
         return;
       }
       if (e.target.closest('#fc-prev-btn')) {
-        const len = state.flashcard.order.length;
-        if (len > 0) {
-          state.flashcard.index = (state.flashcard.index - 1 + len) % len;
-          state.flashcard.flipped = false;
-          render();
-        }
+        prevFlashcard();
         return;
       }
 
@@ -1504,6 +1552,10 @@
         if (window.confirm('确定要清空所有本地学习进度吗？此操作不可撤销。')) {
           state.progress.mastery = {};
           saveProgress();
+          clearFlashcardState();
+          state.flashcard.unit = 'all';
+          state.flashcard.type = 'all';
+          state.flashcard.mastery = 'all';
           rebuildFlashcardDeck();
           state.importError = '';
           state.importSuccess = '已清空本地进度。';
@@ -1518,10 +1570,12 @@
       if (target.id === 'fc-type-select') {
         state.flashcard.type = target.value;
         rebuildFlashcardDeck();
+        saveFlashcardState();
         render();
       } else if (target.id === 'fc-mastery-select') {
         state.flashcard.mastery = target.value;
         rebuildFlashcardDeck();
+        saveFlashcardState();
         render();
       } else if (target.id === 'quiz-type-select') {
         state.quiz.type = target.value;
@@ -1585,10 +1639,7 @@
           rateFlashcard('known');
         } else if (e.key === 'p' || e.key === 'P' || e.key === 'Backspace') {
           e.preventDefault();
-          const len = state.flashcard.order.length;
-          state.flashcard.index = (state.flashcard.index - 1 + len) % len;
-          state.flashcard.flipped = false;
-          render();
+          prevFlashcard();
         } else if (e.key === 's' || e.key === 'S' || e.key === 'r' || e.key === 'R') {
           const word = state.wordMap.get(state.flashcard.order[state.flashcard.index]);
           if (word) {
@@ -1708,7 +1759,9 @@
       state.wordMap = new Map(state.data.words.map((w) => [w.id, w]));
 
       updateHeaderProgress();
-      rebuildFlashcardDeck();
+      if (!restoreFlashcardState()) {
+        rebuildFlashcardDeck();
+      }
       rebuildQuizPool();
       render();
     } catch (err) {
