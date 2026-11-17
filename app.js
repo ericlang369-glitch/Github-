@@ -56,7 +56,9 @@
     progress: {
       version: 1,
       updatedAt: '',
-      mastery: {}
+      mastery: {},
+      sentenceEdits: {},
+      sentenceMastery: {}
     },
     flashcard: {
       unit: 'all',
@@ -75,6 +77,16 @@
       currentOptions: [],
       selectedIndex: null
     },
+    sentencePractice: {
+      unit: 'all',
+      mastery: 'all',
+      order: [],
+      index: 0,
+      revealed: false,
+      drafts: {},
+      editingId: null,
+      editDraft: ''
+    },
     exam: {
       scope: 'all',
       phase: 'setup', // 'setup' | 'taking' | 'result'
@@ -90,7 +102,9 @@
       mastery: 'all',
       search: '',
       showAnswers: true,
-      revealedIds: new Set()
+      revealedIds: new Set(),
+      editingSentenceId: null,
+      editDraft: ''
     },
     importError: '',
     importSuccess: ''
@@ -228,10 +242,28 @@
             clean[id] = status;
           }
         }
+        const cleanEdits = {};
+        if (parsed.sentenceEdits && typeof parsed.sentenceEdits === 'object') {
+          for (const [id, text] of Object.entries(parsed.sentenceEdits)) {
+            if (typeof text === 'string' && text.trim()) {
+              cleanEdits[id] = text.trim();
+            }
+          }
+        }
+        const cleanSentenceMastery = {};
+        if (parsed.sentenceMastery && typeof parsed.sentenceMastery === 'object') {
+          for (const [id, st] of Object.entries(parsed.sentenceMastery)) {
+            if (st === 'known' || st === 'fuzzy') {
+              cleanSentenceMastery[id] = st;
+            }
+          }
+        }
         state.progress = {
           version: 1,
           updatedAt: parsed.updatedAt || '',
-          mastery: clean
+          mastery: clean,
+          sentenceEdits: cleanEdits,
+          sentenceMastery: cleanSentenceMastery
         };
       }
     } catch {
@@ -262,6 +294,46 @@
     return state.progress.mastery[wordId] || 'unlearned';
   }
 
+  function getSentenceAnswer(s) {
+    if (!s) return '';
+    const custom = state.progress.sentenceEdits && state.progress.sentenceEdits[s.id];
+    return custom && custom.trim() ? custom.trim() : s.answer;
+  }
+
+  function isSentenceEdited(s) {
+    return Boolean(s && state.progress.sentenceEdits && state.progress.sentenceEdits[s.id]);
+  }
+
+  function setSentenceEdit(sentenceId, newAnswer) {
+    const trimmed = String(newAnswer || '').trim();
+    if (!trimmed) return false;
+    if (!state.progress.sentenceEdits) state.progress.sentenceEdits = {};
+    state.progress.sentenceEdits[sentenceId] = trimmed;
+    saveProgress();
+    return true;
+  }
+
+  function resetSentenceEdit(sentenceId) {
+    if (state.progress.sentenceEdits && state.progress.sentenceEdits[sentenceId]) {
+      delete state.progress.sentenceEdits[sentenceId];
+      saveProgress();
+    }
+  }
+
+  function getSentenceMastery(sentenceId) {
+    return (state.progress.sentenceMastery && state.progress.sentenceMastery[sentenceId]) || 'unlearned';
+  }
+
+  function setSentenceMastery(sentenceId, status) {
+    if (!state.progress.sentenceMastery) state.progress.sentenceMastery = {};
+    if (!status || status === 'unlearned') {
+      delete state.progress.sentenceMastery[sentenceId];
+    } else {
+      state.progress.sentenceMastery[sentenceId] = status;
+    }
+    saveProgress();
+  }
+
   function updateHeaderProgress() {
     const total = state.data.words.length;
     const knownCount = state.data.words.filter((w) => state.progress.mastery[w.id] === 'known').length;
@@ -275,7 +347,9 @@
     const payload = JSON.stringify({
       v: 1,
       t: state.progress.updatedAt || new Date().toISOString(),
-      m: state.progress.mastery
+      m: state.progress.mastery,
+      se: state.progress.sentenceEdits || {},
+      sm: state.progress.sentenceMastery || {}
     });
     const bytes = new TextEncoder().encode(payload);
     let bin = '';
@@ -327,7 +401,26 @@
         count++;
       }
     }
-    return { imported, count };
+    const validSentenceIds = new Set(state.data.sentences.map((s) => s.id));
+    const importedEdits = {};
+    const rawEdits = obj.se || obj.sentenceEdits;
+    if (rawEdits && typeof rawEdits === 'object' && !Array.isArray(rawEdits)) {
+      for (const [id, val] of Object.entries(rawEdits)) {
+        if (validSentenceIds.has(id) && typeof val === 'string' && val.trim()) {
+          importedEdits[id] = val.trim();
+        }
+      }
+    }
+    const importedSentenceMastery = {};
+    const rawSM = obj.sm || obj.sentenceMastery;
+    if (rawSM && typeof rawSM === 'object' && !Array.isArray(rawSM)) {
+      for (const [id, val] of Object.entries(rawSM)) {
+        if (validSentenceIds.has(id) && (val === 'known' || val === 'fuzzy')) {
+          importedSentenceMastery[id] = val;
+        }
+      }
+    }
+    return { imported, count, importedEdits, importedSentenceMastery };
   }
 
   // ---------- F3 Speech Synthesis ----------
@@ -873,6 +966,139 @@
     `;
   }
 
+  // ---------- Sentence Translation Practice View ----------
+  function rebuildSentencePool(keepCurrentId = false) {
+    const sp = state.sentencePractice;
+    const prevId = keepCurrentId ? sp.order[sp.index] : null;
+    const list = state.data.sentences.filter((s) => {
+      if (sp.unit !== 'all' && String(s.unit) !== sp.unit) return false;
+      if (sp.mastery !== 'all' && getSentenceMastery(s.id) !== sp.mastery) return false;
+      return true;
+    });
+    sp.order = list.map((s) => s.id);
+    if (prevId && sp.order.includes(prevId)) {
+      sp.index = sp.order.indexOf(prevId);
+    } else {
+      sp.index = 0;
+    }
+    sp.revealed = false;
+    sp.editingId = null;
+  }
+
+  function renderSentenceView() {
+    const sp = state.sentencePractice;
+    const total = sp.order.length;
+    const currentId = total > 0 ? sp.order[sp.index] : null;
+    const s = currentId ? state.data.sentences.find((x) => x.id === currentId) : null;
+    const effectiveAnswer = s ? getSentenceAnswer(s) : '';
+    const edited = s ? isSentenceEdited(s) : false;
+    const mastery = s ? getSentenceMastery(s.id) : 'unlearned';
+    const userDraft = s ? sp.drafts[s.id] || '' : '';
+    const isEditing = s && sp.editingId === s.id;
+
+    return `
+      <section class="filter-panel">
+        <div class="filter-row">
+          <div class="unit-pills">${renderUnitChips(sp.unit, 'sp-unit')}</div>
+        </div>
+        <div class="filter-row">
+          <select id="sp-mastery-select" class="select-sm" aria-label="按掌握状态筛选">
+            <option value="all" ${sp.mastery === 'all' ? 'selected' : ''}>全部状态</option>
+            <option value="unlearned" ${sp.mastery === 'unlearned' ? 'selected' : ''}>未练</option>
+            <option value="fuzzy" ${sp.mastery === 'fuzzy' ? 'selected' : ''}>需加强</option>
+            <option value="known" ${sp.mastery === 'known' ? 'selected' : ''}>已掌握</option>
+          </select>
+          <button type="button" id="sp-shuffle-btn" class="btn-ghost">${ICONS.shuffle} 打乱</button>
+        </div>
+      </section>
+
+      ${
+        !s
+          ? `<div class="empty-box">当前筛选条件下没有句子，请切换筛选条件。</div>`
+          : `
+        <div class="fc-meta-bar">
+          <span>第 <strong>${sp.index + 1}</strong> / ${total} 句</span>
+          <span>中译英专项练习</span>
+        </div>
+
+        <article class="sp-card">
+          <div class="fc-top">
+            <div class="fc-badges">
+              <span class="badge badge-unit">Unit ${escapeHtml(s.unit)}</span>
+              <span class="badge badge-sentence">中译英</span>
+              ${edited ? `<span class="badge badge-edited">已自定义</span>` : ''}
+              ${mastery === 'known' ? `<span class="badge badge-known">已掌握</span>` : ''}
+              ${mastery === 'fuzzy' ? `<span class="badge badge-fuzzy">需加强</span>` : ''}
+            </div>
+            ${sp.revealed ? renderSpeakButton(effectiveAnswer, '读', '朗读参考答案') : ''}
+          </div>
+
+          <div class="sp-zh">${escapeHtml(s.zh)}</div>
+          <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
+
+          <textarea id="sp-user-input" class="sp-textarea" data-sp-draft="${escapeHtml(s.id)}" placeholder="在这里先试着写出英文翻译...">${escapeHtml(userDraft)}</textarea>
+
+          <div class="sp-btn-row">
+            <button type="button" id="sp-toggle-answer-btn" class="btn-primary">${sp.revealed ? '隐藏参考答案' : '核对参考答案'}</button>
+            <button type="button" id="sp-clear-draft-btn" class="btn-ghost">清空作答</button>
+          </div>
+
+          ${
+            sp.revealed
+              ? `
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+              <div class="sp-answer-head">
+                <span style="font-size:13px;color:var(--text-muted);font-weight:600;">参考答案（已高亮提示词）：</span>
+                <button type="button" class="btn-inline-edit" data-sp-edit="${escapeHtml(s.id)}">${isEditing ? '收起编辑' : '编辑标准答案'}</button>
+              </div>
+
+              ${
+                isEditing
+                  ? `
+                <div class="sentence-edit-box">
+                  <textarea id="sp-edit-textarea" class="sentence-edit-textarea" placeholder="输入你认可的标准答案...">${escapeHtml(sp.editDraft)}</textarea>
+                  <div class="sentence-edit-actions">
+                    <button type="button" class="btn-primary" data-sp-save="${escapeHtml(s.id)}">保存标准答案</button>
+                    <button type="button" class="btn-ghost" data-sp-cancel>取消</button>
+                    ${edited ? `<button type="button" class="btn-ghost" style="color:var(--danger);" data-sp-reset="${escapeHtml(s.id)}">恢复默认</button>` : ''}
+                  </div>
+                </div>
+              `
+                  : `
+                <div style="padding:10px 12px;border-radius:10px;background:var(--success-soft);font-size:15px;line-height:1.55;">
+                  ${highlightHints(effectiveAnswer, s.hint)}
+                </div>
+              `
+              }
+
+              ${
+                Array.isArray(s.pitfalls) && s.pitfalls.length > 0
+                  ? `<div class="pitfalls-box">
+                      <strong>易错点：</strong>
+                      <ul>${s.pitfalls.map((p) => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+                    </div>`
+                  : ''
+              }
+
+              <div class="self-grade-row" style="margin-top:12px;">
+                <button type="button" class="grade-btn ${mastery === 'fuzzy' ? 'active-partial' : ''}" data-sp-rate="${escapeHtml(s.id)}" data-sp-status="fuzzy">需加强</button>
+                <button type="button" class="grade-btn ${mastery === 'known' ? 'active-right' : ''}" data-sp-rate="${escapeHtml(s.id)}" data-sp-status="known">已掌握</button>
+              </div>
+            </div>
+          `
+              : ''
+          }
+        </article>
+
+        <div class="fc-sub-actions" style="margin-top:12px;">
+          <button type="button" id="sp-prev-btn" class="btn-ghost">${ICONS.arrowLeft} 上一句</button>
+          <button type="button" id="sp-next-btn" class="btn-ghost">下一句 ${ICONS.arrowRight}</button>
+        </div>
+      `
+      }
+    `;
+  }
+
   // ---------- F4 Mock Exam View ----------
   function startMockExam() {
     const scope = state.exam.scope;
@@ -1055,7 +1281,7 @@
                 <span class="badge badge-sentence">中译英 ${si + 1}</span>
                 <span class="badge badge-unit">Unit ${s.unit}</span>
               </div>
-              ${renderSpeakButton(s.answer, '读', '朗读参考答案')}
+              ${renderSpeakButton(getSentenceAnswer(s), '读', '朗读参考答案')}
             </div>
             <div style="font-size:15px;font-weight:700;margin-bottom:6px;">${escapeHtml(s.zh)}</div>
             <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
@@ -1067,7 +1293,7 @@
 
             <div style="margin-top:10px;font-size:13px;color:var(--text-muted);">参考答案（已高亮提示词）：</div>
             <div style="padding:10px 12px;border-radius:10px;background:var(--success-soft);margin-top:4px;font-size:15px;line-height:1.55;">
-              ${highlightHints(s.answer, s.hint)}
+              ${highlightHints(getSentenceAnswer(s), s.hint)}
             </div>
 
             ${
@@ -1235,22 +1461,40 @@
                   }
                   const s = item.data;
                   const visible = b.showAnswers || b.revealedIds.has(s.id);
+                  const ansText = getSentenceAnswer(s);
+                  const edited = isSentenceEdited(s);
+                  const isEditing = b.editingSentenceId === s.id;
                   return `
                     <article class="browse-item">
                       <div class="browse-head">
                         <div class="fc-badges">
                           <span class="badge badge-unit">Unit ${s.unit}</span>
                           <span class="badge badge-sentence">中译英</span>
+                          ${edited ? `<span class="badge badge-edited">已自定义</span>` : ''}
                         </div>
-                        ${renderSpeakButton(s.answer, '', '朗读参考答案')}
+                        <div style="display:flex;align-items:center;gap:6px;">
+                          <button type="button" class="btn-inline-edit" data-browse-edit="${escapeHtml(s.id)}">${isEditing ? '收起' : '编辑答案'}</button>
+                          ${renderSpeakButton(ansText, '', '朗读参考答案')}
+                        </div>
                       </div>
                       <div style="margin-top:8px;font-size:15px;font-weight:700;line-height:1.5;">${escapeHtml(s.zh)}</div>
                       <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
                       ${
-                        visible
+                        isEditing
+                          ? `
+                            <div class="sentence-edit-box">
+                              <textarea id="browse-edit-textarea" class="sentence-edit-textarea" placeholder="输入你认可的标准答案...">${escapeHtml(b.editDraft)}</textarea>
+                              <div class="sentence-edit-actions">
+                                <button type="button" class="btn-primary" data-browse-save="${escapeHtml(s.id)}">保存标准答案</button>
+                                <button type="button" class="btn-ghost" data-browse-cancel>取消</button>
+                                ${edited ? `<button type="button" class="btn-ghost" style="color:var(--danger);" data-browse-reset="${escapeHtml(s.id)}">恢复默认</button>` : ''}
+                              </div>
+                            </div>
+                          `
+                          : visible
                           ? `
                             <div class="browse-zh" style="margin-top:10px;padding:8px 10px;background:var(--success-soft);border-radius:8px;">
-                              ${highlightHints(s.answer, s.hint)}
+                              ${highlightHints(ansText, s.hint)}
                             </div>
                             ${
                               Array.isArray(s.pitfalls) && s.pitfalls.length > 0
@@ -1343,6 +1587,8 @@
       attachFlashcardSwipe();
     } else if (state.tab === 'quiz') {
       main.innerHTML = renderQuizView();
+    } else if (state.tab === 'sentence') {
+      main.innerHTML = renderSentenceView();
     } else if (state.tab === 'exam') {
       main.innerHTML = renderExamView();
     } else if (state.tab === 'browse') {
@@ -1420,6 +1666,146 @@
       }
       if (e.target.closest('#quiz-next-btn')) {
         nextQuizQuestion();
+        return;
+      }
+
+      // Sentence translation practice controls
+      const spUnit = e.target.closest('[data-sp-unit]');
+      if (spUnit) {
+        state.sentencePractice.unit = spUnit.dataset.spUnit;
+        rebuildSentencePool();
+        render();
+        return;
+      }
+      if (e.target.closest('#sp-shuffle-btn')) {
+        state.sentencePractice.order = shuffle(state.sentencePractice.order);
+        state.sentencePractice.index = 0;
+        state.sentencePractice.revealed = false;
+        state.sentencePractice.editingId = null;
+        render();
+        showToast('已随机打乱句子顺序');
+        return;
+      }
+      if (e.target.closest('#sp-toggle-answer-btn')) {
+        state.sentencePractice.revealed = !state.sentencePractice.revealed;
+        state.sentencePractice.editingId = null;
+        render();
+        return;
+      }
+      if (e.target.closest('#sp-clear-draft-btn')) {
+        const curId = state.sentencePractice.order[state.sentencePractice.index];
+        if (curId) delete state.sentencePractice.drafts[curId];
+        render();
+        return;
+      }
+      if (e.target.closest('#sp-prev-btn')) {
+        const len = state.sentencePractice.order.length;
+        if (len > 0) {
+          state.sentencePractice.index = (state.sentencePractice.index - 1 + len) % len;
+          state.sentencePractice.revealed = false;
+          state.sentencePractice.editingId = null;
+          render();
+        }
+        return;
+      }
+      if (e.target.closest('#sp-next-btn')) {
+        const len = state.sentencePractice.order.length;
+        if (len > 0) {
+          state.sentencePractice.index = (state.sentencePractice.index + 1) % len;
+          state.sentencePractice.revealed = false;
+          state.sentencePractice.editingId = null;
+          render();
+        }
+        return;
+      }
+      const spRateBtn = e.target.closest('[data-sp-rate]');
+      if (spRateBtn) {
+        const sid = spRateBtn.dataset.spRate;
+        const st = spRateBtn.dataset.spStatus;
+        setSentenceMastery(sid, getSentenceMastery(sid) === st ? 'unlearned' : st);
+        render();
+        return;
+      }
+      const spEditBtn = e.target.closest('[data-sp-edit]');
+      if (spEditBtn) {
+        const sid = spEditBtn.dataset.spEdit;
+        if (state.sentencePractice.editingId === sid) {
+          state.sentencePractice.editingId = null;
+        } else {
+          const s = state.data.sentences.find((x) => x.id === sid);
+          state.sentencePractice.editingId = sid;
+          state.sentencePractice.editDraft = s ? getSentenceAnswer(s) : '';
+        }
+        render();
+        return;
+      }
+      const spSaveBtn = e.target.closest('[data-sp-save]');
+      if (spSaveBtn) {
+        const sid = spSaveBtn.dataset.spSave;
+        const ta = document.getElementById('sp-edit-textarea');
+        const val = ta ? ta.value : state.sentencePractice.editDraft;
+        if (!setSentenceEdit(sid, val)) {
+          showToast('标准答案不能为空');
+          return;
+        }
+        state.sentencePractice.editingId = null;
+        render();
+        showToast('标准答案已保存');
+        return;
+      }
+      if (e.target.closest('[data-sp-cancel]')) {
+        state.sentencePractice.editingId = null;
+        render();
+        return;
+      }
+      const spResetBtn = e.target.closest('[data-sp-reset]');
+      if (spResetBtn) {
+        resetSentenceEdit(spResetBtn.dataset.spReset);
+        state.sentencePractice.editingId = null;
+        render();
+        showToast('已恢复默认标准答案');
+        return;
+      }
+
+      // Browse sentence inline edit controls
+      const brEditBtn = e.target.closest('[data-browse-edit]');
+      if (brEditBtn) {
+        const sid = brEditBtn.dataset.browseEdit;
+        if (state.browse.editingSentenceId === sid) {
+          state.browse.editingSentenceId = null;
+        } else {
+          const s = state.data.sentences.find((x) => x.id === sid);
+          state.browse.editingSentenceId = sid;
+          state.browse.editDraft = s ? getSentenceAnswer(s) : '';
+        }
+        render();
+        return;
+      }
+      const brSaveBtn = e.target.closest('[data-browse-save]');
+      if (brSaveBtn) {
+        const sid = brSaveBtn.dataset.browseSave;
+        const ta = document.getElementById('browse-edit-textarea');
+        const val = ta ? ta.value : state.browse.editDraft;
+        if (!setSentenceEdit(sid, val)) {
+          showToast('标准答案不能为空');
+          return;
+        }
+        state.browse.editingSentenceId = null;
+        render();
+        showToast('标准答案已保存');
+        return;
+      }
+      if (e.target.closest('[data-browse-cancel]')) {
+        state.browse.editingSentenceId = null;
+        render();
+        return;
+      }
+      const brResetBtn = e.target.closest('[data-browse-reset]');
+      if (brResetBtn) {
+        resetSentenceEdit(brResetBtn.dataset.browseReset);
+        state.browse.editingSentenceId = null;
+        render();
+        showToast('已恢复默认标准答案');
         return;
       }
 
@@ -1524,10 +1910,13 @@
         const ta = document.getElementById('import-textarea');
         if (!ta) return;
         try {
-          const { imported, count } = decodeProgressString(ta.value);
+          const { imported, count, importedEdits, importedSentenceMastery } = decodeProgressString(ta.value);
           state.progress.mastery = imported;
+          state.progress.sentenceEdits = importedEdits || {};
+          state.progress.sentenceMastery = importedSentenceMastery || {};
           saveProgress();
           rebuildFlashcardDeck();
+          rebuildSentencePool();
           state.importError = '';
           state.importSuccess = `导入成功，共恢复 ${count} 条单词掌握状态。`;
           render();
@@ -1542,6 +1931,8 @@
       if (e.target.closest('#reset-progress-btn')) {
         if (window.confirm('确定要清空所有本地学习进度吗？此操作不可撤销。')) {
           state.progress.mastery = {};
+          state.progress.sentenceEdits = {};
+          state.progress.sentenceMastery = {};
           saveProgress();
           clearFlashcardState();
           state.flashcard.unit = 'all';
@@ -1576,6 +1967,10 @@
         state.quiz.mastery = target.value;
         rebuildQuizPool();
         render();
+      } else if (target.id === 'sp-mastery-select') {
+        state.sentencePractice.mastery = target.value;
+        rebuildSentencePool();
+        render();
       } else if (target.id === 'browse-type-select') {
         state.browse.type = target.value;
         render();
@@ -1607,6 +2002,12 @@
           ).length;
           bar.textContent = String(answeredWords + answeredSentences);
         }
+      } else if (target.dataset.spDraft) {
+        state.sentencePractice.drafts[target.dataset.spDraft] = target.value;
+      } else if (target.id === 'sp-edit-textarea') {
+        state.sentencePractice.editDraft = target.value;
+      } else if (target.id === 'browse-edit-textarea') {
+        state.browse.editDraft = target.value;
       }
     });
 
@@ -1754,6 +2155,7 @@
         rebuildFlashcardDeck();
       }
       rebuildQuizPool();
+      rebuildSentencePool();
       render();
     } catch (err) {
       const main = document.getElementById('app-main');

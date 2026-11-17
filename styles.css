@@ -1329,7 +1329,7 @@ button {
   border-top: 1px solid var(--border);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
 }
 
 .nav-btn {
@@ -1362,6 +1362,114 @@ button {
 .nav-label {
   font-size: 11px;
   letter-spacing: 0.01em;
+}
+
+/* Sentence Practice & Editable Answer */
+.sp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+}
+
+.sp-zh {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.sp-textarea {
+  width: 100%;
+  min-height: 92px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #FAFAFB;
+  font-size: 15px;
+  line-height: 1.55;
+  resize: vertical;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sp-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.sp-btn-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sp-answer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.btn-inline-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-inline-edit:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.badge-edited {
+  background: #EEF2FF;
+  color: var(--primary);
+}
+
+.sentence-edit-box {
+  margin-top: 10px;
+  padding: 12px;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.sentence-edit-textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.sentence-edit-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.sentence-edit-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Toast */
