@@ -628,7 +628,7 @@
     clearFlashcardTimers();
     state.flashcard.index = (state.flashcard.index - 1 + len) % len;
     state.flashcard.flipped = false;
-    state.flashcard.enterDir = 'prev';
+    state.flashcard.enterDir = null;
     saveFlashcardState();
     updateFlashcardDeckOnly();
   }
@@ -639,7 +639,7 @@
     clearFlashcardTimers();
     state.flashcard.index = (state.flashcard.index + 1) % len;
     state.flashcard.flipped = false;
-    state.flashcard.enterDir = 'next';
+    state.flashcard.enterDir = null;
     saveFlashcardState();
     updateFlashcardDeckOnly();
   }
@@ -658,6 +658,23 @@
     state.flashcard.enterDir = null;
   }
 
+  function animateTrackTo(direction, onDone) {
+    const track = document.getElementById('fc-track');
+    if (!track || state.tab !== 'flashcard') {
+      if (onDone) onDone();
+      return;
+    }
+    const targetTransform =
+      direction === 'next' ? 'translate3d(calc(-100% - 12px), 0, 0)' : 'translate3d(calc(100% + 12px), 0, 0)';
+    track.classList.add('is-animating');
+    void track.offsetWidth;
+    track.style.transform = targetTransform;
+    fcFlyOutTimer = setTimeout(() => {
+      fcFlyOutTimer = null;
+      if (onDone) onDone();
+    }, 260);
+  }
+
   function rateFlashcard(status) {
     const { order, index } = state.flashcard;
     if (order.length === 0) return;
@@ -673,20 +690,16 @@
 
     fcAutoNextTimer = setTimeout(() => {
       fcAutoNextTimer = null;
-      const slideWrap = document.getElementById('fc-slide-wrap') || document.getElementById('fc-card');
-      if (slideWrap && state.tab === 'flashcard') {
-        slideWrap.classList.add('fly-left');
-      }
-      fcFlyOutTimer = setTimeout(() => {
-        fcFlyOutTimer = null;
+      if (state.tab !== 'flashcard' || state.flashcard.order.length === 0) return;
+      animateTrackTo('next', () => {
         if (state.tab !== 'flashcard' || state.flashcard.order.length === 0) return;
         state.flashcard.index = (state.flashcard.index + 1) % state.flashcard.order.length;
         state.flashcard.flipped = false;
-        state.flashcard.enterDir = 'next';
+        state.flashcard.enterDir = null;
         saveFlashcardState();
         updateFlashcardDeckOnly();
-      }, 220);
-    }, 280);
+      });
+    }, 260);
   }
 
   function toggleFlashcardFlip() {
@@ -699,26 +712,72 @@
     }
   }
 
+  function renderSingleCardFaceHtml(word, isCurrent, flipped) {
+    if (!word) return '';
+    const status = getWordMastery(word.id);
+    const badgesHtml = `
+      <span class="badge badge-unit">Unit ${escapeHtml(word.unit)}</span>
+      ${renderTypeBadge(word.type)}
+      ${renderMasteryBadge(status)}
+    `;
+    const cardAttrs = isCurrent
+      ? `id="fc-card" tabindex="0" role="button" aria-label="闪卡，点击翻面"`
+      : `aria-hidden="true"`;
+    const flippedClass = isCurrent && flipped ? 'is-flipped' : '';
+
+    return `
+      <div ${cardAttrs} class="flashcard-card ${flippedClass}">
+        <div class="flashcard-front">
+          <div class="fc-top">
+            <div class="fc-badges">${badgesHtml}</div>
+            ${renderSpeakButton(word.en, '读')}
+          </div>
+
+          <div class="fc-center">
+            <h2 class="fc-word">${escapeHtml(word.en)}</h2>
+            ${word.ipa ? `<div class="ipa-text fc-ipa">${escapeHtml(word.ipa)}</div>` : ''}
+            ${word.pos ? `<div class="fc-pos">${escapeHtml(word.pos)}</div>` : ''}
+          </div>
+
+          <div class="fc-hint-line">点击卡片或按空格键查看中文释义</div>
+        </div>
+
+        <div class="flashcard-back">
+          <div class="fc-top">
+            <div class="fc-badges">${badgesHtml}</div>
+            ${renderSpeakButton(word.en, '读')}
+          </div>
+
+          <div class="fc-center">
+            <h2 class="fc-word">${escapeHtml(word.en)}</h2>
+            ${word.ipa ? `<div class="ipa-text fc-ipa">${escapeHtml(word.ipa)}</div>` : ''}
+            ${word.pos ? `<div class="fc-pos">${escapeHtml(word.pos)}</div>` : ''}
+            <div class="fc-back-box">
+              <div class="fc-zh">${escapeHtml(word.zh)}</div>
+            </div>
+          </div>
+
+          <div class="fc-hint-line">已翻面：请选择掌握程度或滑动切卡</div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderFlashcardDeckHtml() {
     const fc = state.flashcard;
     const total = fc.order.length;
     const currentWord = total > 0 ? state.wordMap.get(fc.order[fc.index]) : null;
     const currentStatus = currentWord ? getWordMastery(currentWord.id) : 'unlearned';
-    const badgesHtml = currentWord
-      ? `
-        <span class="badge badge-unit">Unit ${escapeHtml(currentWord.unit)}</span>
-        ${renderTypeBadge(currentWord.type)}
-        ${renderMasteryBadge(currentStatus)}
-      `
-      : '';
-
-    const enterClass =
-      fc.enterDir === 'next' ? 'enter-from-right' : fc.enterDir === 'prev' ? 'enter-from-left' : '';
     fc.enterDir = null;
 
     if (!currentWord) {
       return `<div class="empty-box">当前筛选条件下没有卡片，请切换筛选条件。</div>`;
     }
+
+    const prevIdx = (fc.index - 1 + total) % total;
+    const nextIdx = (fc.index + 1) % total;
+    const prevWord = state.wordMap.get(fc.order[prevIdx]);
+    const nextWord = state.wordMap.get(fc.order[nextIdx]);
 
     return `
       <div class="fc-meta-bar">
@@ -729,41 +788,10 @@
       <div class="flashcard-stage">
         <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.arrowLeft} 上一个</span>
         <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">下一个 ${ICONS.arrowRight}</span>
-        <div id="fc-slide-wrap" class="fc-slide-wrap ${enterClass}">
-          <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
-            <div class="flashcard-front">
-              <div class="fc-top">
-                <div class="fc-badges">${badgesHtml}</div>
-                ${renderSpeakButton(currentWord.en, '读')}
-              </div>
-
-              <div class="fc-center">
-                <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
-                ${currentWord.ipa ? `<div class="ipa-text fc-ipa">${escapeHtml(currentWord.ipa)}</div>` : ''}
-                ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
-              </div>
-
-              <div class="fc-hint-line">点击卡片或按空格键查看中文释义</div>
-            </div>
-
-            <div class="flashcard-back">
-              <div class="fc-top">
-                <div class="fc-badges">${badgesHtml}</div>
-                ${renderSpeakButton(currentWord.en, '读')}
-              </div>
-
-              <div class="fc-center">
-                <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
-                ${currentWord.ipa ? `<div class="ipa-text fc-ipa">${escapeHtml(currentWord.ipa)}</div>` : ''}
-                ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
-                <div class="fc-back-box">
-                  <div class="fc-zh">${escapeHtml(currentWord.zh)}</div>
-                </div>
-              </div>
-
-              <div class="fc-hint-line">已翻面：请选择掌握程度或滑动切卡</div>
-            </div>
-          </div>
+        <div id="fc-track" class="fc-track">
+          <div class="fc-slot fc-slot-prev">${renderSingleCardFaceHtml(prevWord, false, false)}</div>
+          <div class="fc-slot fc-slot-curr">${renderSingleCardFaceHtml(currentWord, true, fc.flipped)}</div>
+          <div class="fc-slot fc-slot-next">${renderSingleCardFaceHtml(nextWord, false, false)}</div>
         </div>
       </div>
 
@@ -830,82 +858,71 @@
 
   function attachFlashcardSwipe() {
     const card = document.getElementById('fc-card');
-    const slideWrap = document.getElementById('fc-slide-wrap');
-    if (!card || !slideWrap) return;
-    const stage = card.closest('.flashcard-stage');
+    const track = document.getElementById('fc-track');
+    if (!card || !track) return;
+    const stage = track.closest('.flashcard-stage');
     const badgePrev = stage ? stage.querySelector('.swipe-badge-know') : null;
     const badgeNext = stage ? stage.querySelector('.swipe-badge-unknown') : null;
 
     let startX = 0;
     let startY = 0;
+    let startTime = 0;
     let dx = 0;
     let dy = 0;
     let tracking = false;
     let moved = false;
-    let lockedHorizontal = false;
-    let flyingOut = false;
+    let animating = false;
+    let snapBackTimer = null;
 
-    const clearSwipeVisuals = () => {
-      slideWrap.classList.remove('is-swiping');
-      slideWrap.style.transform = '';
-      slideWrap.style.opacity = '';
+    const clearSwipeBadges = () => {
       card.classList.remove('swipe-known', 'swipe-unknown', 'swipe-fuzzy');
       if (badgePrev) badgePrev.classList.remove('is-visible');
       if (badgeNext) badgeNext.classList.remove('is-visible');
     };
 
-    const triggerFlyOut = (flyClass, navFn) => {
-      flyingOut = true;
-      slideWrap.classList.remove('is-swiping');
-      slideWrap.style.transform = '';
-      slideWrap.style.opacity = '';
-      slideWrap.classList.add(flyClass);
-      setTimeout(() => {
-        navFn();
-      }, 210);
-    };
+    if (stage) {
+      stage.addEventListener(
+        'touchmove',
+        (e) => {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+    }
 
     card.addEventListener('pointerdown', (e) => {
-      if (flyingOut || e.target.closest('.speak-btn')) return;
+      if (animating || e.target.closest('.speak-btn')) return;
+      if (snapBackTimer) {
+        clearTimeout(snapBackTimer);
+        snapBackTimer = null;
+      }
       tracking = true;
       moved = false;
-      lockedHorizontal = false;
       startX = e.clientX;
       startY = e.clientY;
+      startTime = performance.now();
       dx = 0;
       dy = 0;
+      track.classList.remove('is-animating');
+      try {
+        card.setPointerCapture(e.pointerId);
+      } catch {
+        // Ignore pointer capture errors
+      }
     });
 
     card.addEventListener('pointermove', (e) => {
-      if (!tracking || flyingOut) return;
+      if (!tracking || animating) return;
       dx = e.clientX - startX;
       dy = e.clientY - startY;
-      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
         moved = true;
       }
-      if (!lockedHorizontal) {
-        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
-          lockedHorizontal = true;
-          slideWrap.classList.add('is-swiping');
-          try {
-            card.setPointerCapture(e.pointerId);
-          } catch {
-            // Ignore pointer capture errors
-          }
-        } else if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) {
-          tracking = false;
-          clearSwipeVisuals();
-          return;
-        }
-      }
-      if (!lockedHorizontal) return;
+      if (!moved) return;
 
-      card.classList.remove('swipe-known', 'swipe-unknown', 'swipe-fuzzy');
-      if (badgePrev) badgePrev.classList.remove('is-visible');
-      if (badgeNext) badgeNext.classList.remove('is-visible');
+      track.style.transform = `translate3d(${dx}px, 0, 0)`;
 
-      slideWrap.style.transform = `translate3d(${dx}px, 0, 0)`;
-      slideWrap.style.opacity = String(Math.max(0.45, 1 - Math.abs(dx) / 420));
+      clearSwipeBadges();
       if (dx > 36) {
         card.classList.add('swipe-known');
         if (badgePrev) badgePrev.classList.add('is-visible');
@@ -916,7 +933,7 @@
     });
 
     const finishDrag = (e) => {
-      if (!tracking || flyingOut) return;
+      if (!tracking || animating) return;
       tracking = false;
       try {
         if (e && typeof e.pointerId === 'number' && card.hasPointerCapture(e.pointerId)) {
@@ -925,17 +942,51 @@
       } catch {
         // Ignore pointer capture release errors
       }
-      const THRESHOLD = 80;
-      if (lockedHorizontal && dx > THRESHOLD) {
-        triggerFlyOut('fly-right', prevFlashcard);
+
+      const dt = Math.max(1, performance.now() - startTime);
+      const vx = dx / dt;
+      clearSwipeBadges();
+
+      if (dx < -55 || (dx < -18 && vx < -0.35)) {
+        animating = true;
+        clearFlashcardTimers();
+        animateTrackTo('next', () => {
+          animating = false;
+          if (state.tab !== 'flashcard' || state.flashcard.order.length === 0) return;
+          state.flashcard.index = (state.flashcard.index + 1) % state.flashcard.order.length;
+          state.flashcard.flipped = false;
+          state.flashcard.enterDir = null;
+          saveFlashcardState();
+          updateFlashcardDeckOnly();
+        });
         return;
       }
-      if (lockedHorizontal && dx < -THRESHOLD) {
-        triggerFlyOut('fly-left', nextFlashcard);
+
+      if (dx > 55 || (dx > 18 && vx > 0.35)) {
+        animating = true;
+        clearFlashcardTimers();
+        animateTrackTo('prev', () => {
+          animating = false;
+          if (state.tab !== 'flashcard' || state.flashcard.order.length === 0) return;
+          const len = state.flashcard.order.length;
+          state.flashcard.index = (state.flashcard.index - 1 + len) % len;
+          state.flashcard.flipped = false;
+          state.flashcard.enterDir = null;
+          saveFlashcardState();
+          updateFlashcardDeckOnly();
+        });
         return;
       }
-      clearSwipeVisuals();
-      if (!moved) {
+
+      if (moved) {
+        track.classList.add('is-animating');
+        track.style.transform = 'translate3d(0, 0, 0)';
+        snapBackTimer = setTimeout(() => {
+          snapBackTimer = null;
+          track.classList.remove('is-animating');
+        }, 260);
+      } else {
+        track.style.transform = '';
         toggleFlashcardFlip();
       }
     };
@@ -950,7 +1001,9 @@
       } catch {
         // Ignore
       }
-      clearSwipeVisuals();
+      clearSwipeBadges();
+      track.classList.add('is-animating');
+      track.style.transform = 'translate3d(0, 0, 0)';
     });
   }
 
