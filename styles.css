@@ -40,6 +40,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -68,6 +70,8 @@ button {
 
 .app-shell {
   min-height: 100dvh;
+  max-width: 100vw;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
@@ -462,11 +466,25 @@ button {
 .fc-stage,
 .flashcard-stage {
   position: relative;
-  perspective: 1200px;
-  -webkit-perspective: 1200px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
   touch-action: pan-y;
   user-select: none;
   margin-bottom: 16px;
+}
+
+.fc-slide-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  perspective: 1200px;
+  -webkit-perspective: 1200px;
+  will-change: transform, opacity;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+}
+
+.fc-slide-wrap.is-swiping {
+  transition: none !important;
 }
 
 .fc-card,
@@ -477,11 +495,13 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-hairline);
-  min-height: 300px;
+  height: 320px;
+  min-height: 320px;
+  max-height: 320px;
   cursor: pointer;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.18s ease, opacity 0.25s ease;
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.18s ease;
   will-change: transform;
 }
 
@@ -502,6 +522,9 @@ button {
 .flashcard-front,
 .flashcard-back {
   grid-area: 1 / 1;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   padding: 20px 20px 24px;

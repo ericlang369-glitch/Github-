@@ -630,7 +630,7 @@
     state.flashcard.flipped = false;
     state.flashcard.enterDir = 'prev';
     saveFlashcardState();
-    render();
+    updateFlashcardDeckOnly();
   }
 
   function nextFlashcard() {
@@ -641,7 +641,7 @@
     state.flashcard.flipped = false;
     state.flashcard.enterDir = 'next';
     saveFlashcardState();
-    render();
+    updateFlashcardDeckOnly();
   }
 
   function rebuildFlashcardDeck(keepCurrentId = false) {
@@ -665,7 +665,7 @@
     const wordId = order[index];
     setWordMastery(wordId, status);
     saveFlashcardState();
-    render();
+    updateFlashcardDeckOnly();
 
     if (!state.flashcard.autoNext) {
       return;
@@ -673,9 +673,9 @@
 
     fcAutoNextTimer = setTimeout(() => {
       fcAutoNextTimer = null;
-      const card = document.getElementById('fc-card');
-      if (card && state.tab === 'flashcard') {
-        card.classList.add('fly-left');
+      const slideWrap = document.getElementById('fc-slide-wrap') || document.getElementById('fc-card');
+      if (slideWrap && state.tab === 'flashcard') {
+        slideWrap.classList.add('fly-left');
       }
       fcFlyOutTimer = setTimeout(() => {
         fcFlyOutTimer = null;
@@ -684,7 +684,7 @@
         state.flashcard.flipped = false;
         state.flashcard.enterDir = 'next';
         saveFlashcardState();
-        render();
+        updateFlashcardDeckOnly();
       }, 220);
     }, 280);
   }
@@ -699,7 +699,7 @@
     }
   }
 
-  function renderFlashcardView() {
+  function renderFlashcardDeckHtml() {
     const fc = state.flashcard;
     const total = fc.order.length;
     const currentWord = total > 0 ? state.wordMap.get(fc.order[fc.index]) : null;
@@ -716,42 +716,21 @@
       fc.enterDir === 'next' ? 'enter-from-right' : fc.enterDir === 'prev' ? 'enter-from-left' : '';
     fc.enterDir = null;
 
+    if (!currentWord) {
+      return `<div class="empty-box">当前筛选条件下没有卡片，请切换筛选条件。</div>`;
+    }
+
     return `
-      <section class="filter-panel">
-        <div class="filter-row">
-          <div class="unit-pills">${renderUnitChips(fc.unit, 'fc-unit')}</div>
-        </div>
-        <div class="filter-row">
-          <select id="fc-type-select" class="select-sm" aria-label="按题型筛选">
-            <option value="all" ${fc.type === 'all' ? 'selected' : ''}>全部词型</option>
-            <option value="star" ${fc.type === 'star' ? 'selected' : ''}>重点词</option>
-            <option value="plain" ${fc.type === 'plain' ? 'selected' : ''}>无星词</option>
-            <option value="phrase" ${fc.type === 'phrase' ? 'selected' : ''}>短语</option>
-          </select>
-          <select id="fc-mastery-select" class="select-sm" aria-label="按掌握状态筛选">
-            <option value="all" ${fc.mastery === 'all' ? 'selected' : ''}>全部状态</option>
-            <option value="unlearned" ${fc.mastery === 'unlearned' ? 'selected' : ''}>未学</option>
-            <option value="unknown" ${fc.mastery === 'unknown' ? 'selected' : ''}>不认识</option>
-            <option value="fuzzy" ${fc.mastery === 'fuzzy' ? 'selected' : ''}>模糊</option>
-            <option value="known" ${fc.mastery === 'known' ? 'selected' : ''}>认识</option>
-          </select>
-          <button type="button" id="fc-shuffle-btn" class="btn-ghost">${ICONS.shuffle} 打乱</button>
-        </div>
-      </section>
+      <div class="fc-meta-bar">
+        <span>第 <strong>${fc.index + 1}</strong> / ${total} 张</span>
+        <span>左滑下一个 · 右滑上一个 · 点击翻面</span>
+      </div>
 
-      ${
-        !currentWord
-          ? `<div class="empty-box">当前筛选条件下没有卡片，请切换筛选条件。</div>`
-          : `
-        <div class="fc-meta-bar">
-          <span>第 <strong>${fc.index + 1}</strong> / ${total} 张</span>
-          <span>左滑下一个 · 右滑上一个 · 点击翻面</span>
-        </div>
-
-        <div class="flashcard-stage">
-          <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.arrowLeft} 上一个</span>
-          <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">下一个 ${ICONS.arrowRight}</span>
-          <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''} ${enterClass}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
+      <div class="flashcard-stage">
+        <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.arrowLeft} 上一个</span>
+        <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">下一个 ${ICONS.arrowRight}</span>
+        <div id="fc-slide-wrap" class="fc-slide-wrap ${enterClass}">
+          <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
             <div class="flashcard-front">
               <div class="fc-top">
                 <div class="fc-badges">${badgesHtml}</div>
@@ -786,34 +765,73 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="fc-actions">
-          <button type="button" class="action-btn btn-unknown ${currentStatus === 'unknown' ? 'is-active' : ''}" data-rate="unknown">
-            <span>不认识</span>
-          </button>
-          <button type="button" class="action-btn btn-fuzzy ${currentStatus === 'fuzzy' ? 'is-active' : ''}" data-rate="fuzzy">
-            <span>模糊</span>
-          </button>
-          <button type="button" class="action-btn btn-known ${currentStatus === 'known' ? 'is-active' : ''}" data-rate="known">
-            <span>认识</span>
-          </button>
-        </div>
+      <div class="fc-actions">
+        <button type="button" class="action-btn btn-unknown ${currentStatus === 'unknown' ? 'is-active' : ''}" data-rate="unknown">
+          <span>不认识</span>
+        </button>
+        <button type="button" class="action-btn btn-fuzzy ${currentStatus === 'fuzzy' ? 'is-active' : ''}" data-rate="fuzzy">
+          <span>模糊</span>
+        </button>
+        <button type="button" class="action-btn btn-known ${currentStatus === 'known' ? 'is-active' : ''}" data-rate="known">
+          <span>认识</span>
+        </button>
+      </div>
 
-        <div class="fc-sub-actions">
-          <label class="fc-autonext-toggle">
-            <input type="checkbox" id="fc-autonext-checkbox" ${fc.autoNext ? 'checked' : ''} />
-            <span>标记后自动下一张</span>
-          </label>
-          <span class="kbd-tip">快捷键：空格翻面 · 1不认识 2模糊 3认识 · S朗读</span>
+      <div class="fc-sub-actions">
+        <label class="fc-autonext-toggle">
+          <input type="checkbox" id="fc-autonext-checkbox" ${fc.autoNext ? 'checked' : ''} />
+          <span>标记后自动下一张</span>
+        </label>
+        <span class="kbd-tip">快捷键：空格翻面 · 1不认识 2模糊 3认识 · S朗读</span>
+      </div>
+    `;
+  }
+
+  function updateFlashcardDeckOnly() {
+    const deckEl = document.getElementById('fc-deck-area');
+    if (deckEl && state.tab === 'flashcard') {
+      deckEl.innerHTML = renderFlashcardDeckHtml();
+      attachFlashcardSwipe();
+    } else {
+      render();
+    }
+  }
+
+  function renderFlashcardView() {
+    const fc = state.flashcard;
+    return `
+      <section class="filter-panel">
+        <div class="filter-row">
+          <div class="unit-pills">${renderUnitChips(fc.unit, 'fc-unit')}</div>
         </div>
-      `
-      }
+        <div class="filter-row">
+          <select id="fc-type-select" class="select-sm" aria-label="按题型筛选">
+            <option value="all" ${fc.type === 'all' ? 'selected' : ''}>全部词型</option>
+            <option value="star" ${fc.type === 'star' ? 'selected' : ''}>重点词</option>
+            <option value="plain" ${fc.type === 'plain' ? 'selected' : ''}>无星词</option>
+            <option value="phrase" ${fc.type === 'phrase' ? 'selected' : ''}>短语</option>
+          </select>
+          <select id="fc-mastery-select" class="select-sm" aria-label="按掌握状态筛选">
+            <option value="all" ${fc.mastery === 'all' ? 'selected' : ''}>全部状态</option>
+            <option value="unlearned" ${fc.mastery === 'unlearned' ? 'selected' : ''}>未学</option>
+            <option value="unknown" ${fc.mastery === 'unknown' ? 'selected' : ''}>不认识</option>
+            <option value="fuzzy" ${fc.mastery === 'fuzzy' ? 'selected' : ''}>模糊</option>
+            <option value="known" ${fc.mastery === 'known' ? 'selected' : ''}>认识</option>
+          </select>
+          <button type="button" id="fc-shuffle-btn" class="btn-ghost">${ICONS.shuffle} 打乱</button>
+        </div>
+      </section>
+
+      <div id="fc-deck-area">${renderFlashcardDeckHtml()}</div>
     `;
   }
 
   function attachFlashcardSwipe() {
     const card = document.getElementById('fc-card');
-    if (!card) return;
+    const slideWrap = document.getElementById('fc-slide-wrap');
+    if (!card || !slideWrap) return;
     const stage = card.closest('.flashcard-stage');
     const badgePrev = stage ? stage.querySelector('.swipe-badge-know') : null;
     const badgeNext = stage ? stage.querySelector('.swipe-badge-unknown') : null;
@@ -824,20 +842,24 @@
     let dy = 0;
     let tracking = false;
     let moved = false;
+    let lockedHorizontal = false;
     let flyingOut = false;
 
     const clearSwipeVisuals = () => {
-      card.classList.remove('is-swiping', 'swipe-known', 'swipe-unknown', 'swipe-fuzzy');
-      card.style.transform = '';
+      slideWrap.classList.remove('is-swiping');
+      slideWrap.style.transform = '';
+      slideWrap.style.opacity = '';
+      card.classList.remove('swipe-known', 'swipe-unknown', 'swipe-fuzzy');
       if (badgePrev) badgePrev.classList.remove('is-visible');
       if (badgeNext) badgeNext.classList.remove('is-visible');
     };
 
     const triggerFlyOut = (flyClass, navFn) => {
       flyingOut = true;
-      card.classList.remove('is-swiping');
-      card.style.transform = '';
-      card.classList.add(flyClass);
+      slideWrap.classList.remove('is-swiping');
+      slideWrap.style.transform = '';
+      slideWrap.style.opacity = '';
+      slideWrap.classList.add(flyClass);
       setTimeout(() => {
         navFn();
       }, 210);
@@ -847,6 +869,7 @@
       if (flyingOut || e.target.closest('.speak-btn')) return;
       tracking = true;
       moved = false;
+      lockedHorizontal = false;
       startX = e.clientX;
       startY = e.clientY;
       dx = 0;
@@ -859,36 +882,55 @@
       dy = e.clientY - startY;
       if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
         moved = true;
-        card.classList.add('is-swiping');
       }
-      if (!moved) return;
+      if (!lockedHorizontal) {
+        if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+          lockedHorizontal = true;
+          slideWrap.classList.add('is-swiping');
+          try {
+            card.setPointerCapture(e.pointerId);
+          } catch {
+            // Ignore pointer capture errors
+          }
+        } else if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) {
+          tracking = false;
+          clearSwipeVisuals();
+          return;
+        }
+      }
+      if (!lockedHorizontal) return;
 
       card.classList.remove('swipe-known', 'swipe-unknown', 'swipe-fuzzy');
       if (badgePrev) badgePrev.classList.remove('is-visible');
       if (badgeNext) badgeNext.classList.remove('is-visible');
 
-      const flipTransform = state.flashcard.flipped ? ' rotateY(180deg)' : '';
-      if (Math.abs(dx) >= Math.abs(dy)) {
-        card.style.transform = `translate3d(${dx}px, 0, 0)${flipTransform}`;
-        if (dx > 36) {
-          card.classList.add('swipe-known');
-          if (badgePrev) badgePrev.classList.add('is-visible');
-        } else if (dx < -36) {
-          card.classList.add('swipe-unknown');
-          if (badgeNext) badgeNext.classList.add('is-visible');
-        }
+      slideWrap.style.transform = `translate3d(${dx}px, 0, 0)`;
+      slideWrap.style.opacity = String(Math.max(0.45, 1 - Math.abs(dx) / 420));
+      if (dx > 36) {
+        card.classList.add('swipe-known');
+        if (badgePrev) badgePrev.classList.add('is-visible');
+      } else if (dx < -36) {
+        card.classList.add('swipe-unknown');
+        if (badgeNext) badgeNext.classList.add('is-visible');
       }
     });
 
-    const finishDrag = () => {
+    const finishDrag = (e) => {
       if (!tracking || flyingOut) return;
       tracking = false;
+      try {
+        if (e && typeof e.pointerId === 'number' && card.hasPointerCapture(e.pointerId)) {
+          card.releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        // Ignore pointer capture release errors
+      }
       const THRESHOLD = 80;
-      if (Math.abs(dx) >= Math.abs(dy) && dx > THRESHOLD) {
+      if (lockedHorizontal && dx > THRESHOLD) {
         triggerFlyOut('fly-right', prevFlashcard);
         return;
       }
-      if (Math.abs(dx) >= Math.abs(dy) && dx < -THRESHOLD) {
+      if (lockedHorizontal && dx < -THRESHOLD) {
         triggerFlyOut('fly-left', nextFlashcard);
         return;
       }
@@ -899,8 +941,15 @@
     };
 
     card.addEventListener('pointerup', finishDrag);
-    card.addEventListener('pointercancel', () => {
+    card.addEventListener('pointercancel', (e) => {
       tracking = false;
+      try {
+        if (e && typeof e.pointerId === 'number' && card.hasPointerCapture(e.pointerId)) {
+          card.releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        // Ignore
+      }
       clearSwipeVisuals();
     });
   }
