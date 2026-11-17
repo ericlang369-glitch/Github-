@@ -520,6 +520,15 @@
     render();
   }
 
+  function nextFlashcard() {
+    const len = state.flashcard.order.length;
+    if (len === 0) return;
+    state.flashcard.index = (state.flashcard.index + 1) % len;
+    state.flashcard.flipped = false;
+    saveFlashcardState();
+    render();
+  }
+
   function rebuildFlashcardDeck(keepCurrentId = false) {
     const prevId = keepCurrentId ? state.flashcard.order[state.flashcard.index] : null;
     const list = filterWords(state.flashcard.unit, state.flashcard.type, state.flashcard.mastery);
@@ -597,13 +606,12 @@
           : `
         <div class="fc-meta-bar">
           <span>第 <strong>${fc.index + 1}</strong> / ${total} 张</span>
-          <span>右滑认识 · 上滑模糊 · 左滑不认识</span>
+          <span>左滑下一个 · 右滑上一个 · 点击翻面</span>
         </div>
 
         <div class="flashcard-stage">
-          <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.check} 认识</span>
-          <span class="swipe-badge swipe-badge-fuzzy" aria-hidden="true">${ICONS.help} 模糊</span>
-          <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">${ICONS.x} 不认识</span>
+          <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.arrowLeft} 上一个</span>
+          <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">下一个 ${ICONS.arrowRight}</span>
           <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
             <div class="flashcard-front">
               <div class="fc-top">
@@ -665,9 +673,8 @@
     const card = document.getElementById('fc-card');
     if (!card) return;
     const stage = card.closest('.flashcard-stage');
-    const badgeKnow = stage ? stage.querySelector('.swipe-badge-know') : null;
-    const badgeFuzzy = stage ? stage.querySelector('.swipe-badge-fuzzy') : null;
-    const badgeUnknown = stage ? stage.querySelector('.swipe-badge-unknown') : null;
+    const badgePrev = stage ? stage.querySelector('.swipe-badge-know') : null;
+    const badgeNext = stage ? stage.querySelector('.swipe-badge-unknown') : null;
 
     let startX = 0;
     let startY = 0;
@@ -680,18 +687,17 @@
     const clearSwipeVisuals = () => {
       card.classList.remove('is-swiping', 'swipe-known', 'swipe-unknown', 'swipe-fuzzy');
       card.style.transform = '';
-      if (badgeKnow) badgeKnow.classList.remove('is-visible');
-      if (badgeFuzzy) badgeFuzzy.classList.remove('is-visible');
-      if (badgeUnknown) badgeUnknown.classList.remove('is-visible');
+      if (badgePrev) badgePrev.classList.remove('is-visible');
+      if (badgeNext) badgeNext.classList.remove('is-visible');
     };
 
-    const triggerFlyOut = (flyClass, status) => {
+    const triggerFlyOut = (flyClass, navFn) => {
       flyingOut = true;
       card.classList.remove('is-swiping');
       card.style.transform = '';
       card.classList.add(flyClass);
       setTimeout(() => {
-        rateFlashcard(status);
+        navFn();
       }, 240);
     };
 
@@ -716,9 +722,8 @@
       if (!moved) return;
 
       card.classList.remove('swipe-known', 'swipe-unknown', 'swipe-fuzzy');
-      if (badgeKnow) badgeKnow.classList.remove('is-visible');
-      if (badgeFuzzy) badgeFuzzy.classList.remove('is-visible');
-      if (badgeUnknown) badgeUnknown.classList.remove('is-visible');
+      if (badgePrev) badgePrev.classList.remove('is-visible');
+      if (badgeNext) badgeNext.classList.remove('is-visible');
 
       const flipTransform = state.flashcard.flipped ? ' rotateY(180deg)' : '';
       if (Math.abs(dx) >= Math.abs(dy)) {
@@ -726,20 +731,11 @@
         card.style.transform = `translate3d(${dx}px, ${dy * 0.18}px, 0) rotate(${rot}deg)${flipTransform}`;
         if (dx > 36) {
           card.classList.add('swipe-known');
-          if (badgeKnow) badgeKnow.classList.add('is-visible');
+          if (badgePrev) badgePrev.classList.add('is-visible');
         } else if (dx < -36) {
           card.classList.add('swipe-unknown');
-          if (badgeUnknown) badgeUnknown.classList.add('is-visible');
+          if (badgeNext) badgeNext.classList.add('is-visible');
         }
-      } else if (dy < 0) {
-        const clampedY = Math.max(-120, dy);
-        card.style.transform = `translate3d(${dx * 0.2}px, ${clampedY}px, 0)${flipTransform}`;
-        if (dy < -36) {
-          card.classList.add('swipe-fuzzy');
-          if (badgeFuzzy) badgeFuzzy.classList.add('is-visible');
-        }
-      } else {
-        card.style.transform = `translate3d(0, ${Math.min(40, dy * 0.25)}px, 0)${flipTransform}`;
       }
     });
 
@@ -748,15 +744,11 @@
       tracking = false;
       const THRESHOLD = 80;
       if (Math.abs(dx) >= Math.abs(dy) && dx > THRESHOLD) {
-        triggerFlyOut('fly-right', 'known');
+        triggerFlyOut('fly-right', prevFlashcard);
         return;
       }
       if (Math.abs(dx) >= Math.abs(dy) && dx < -THRESHOLD) {
-        triggerFlyOut('fly-left', 'unknown');
-        return;
-      }
-      if (Math.abs(dy) > Math.abs(dx) && dy < -THRESHOLD) {
-        triggerFlyOut('fly-up', 'fuzzy');
+        triggerFlyOut('fly-left', nextFlashcard);
         return;
       }
       clearSwipeVisuals();
