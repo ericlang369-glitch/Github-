@@ -6,6 +6,7 @@
       "unit": 2,
       "type": "star",
       "en": "isolate",
+      "ipa": "/ˈaɪsəleɪt/",
       "pos": "vt.",
       "zh": "孤立；隔离"
     },
@@ -14,6 +15,7 @@
       "unit": 2,
       "type": "star",
       "en": "glimpse",
+      "ipa": "/ɡlɪmps/",
       "pos": "n.",
       "zh": "1. 短暂的感受；短暂的体验；2. 一瞥；瞟一眼"
     },
@@ -22,6 +24,7 @@
       "unit": 2,
       "type": "star",
       "en": "squeeze",
+      "ipa": "/skwiːz/",
       "pos": "vt.",
       "zh": "压；挤；捏"
     },
@@ -30,6 +33,7 @@
       "unit": 2,
       "type": "star",
       "en": "puzzle",
+      "ipa": "/ˈpʌzəl/",
       "pos": "n.",
       "zh": "1. 不解之谜；疑问；2. 谜；智力游戏"
     },
@@ -38,6 +42,7 @@
       "unit": 2,
       "type": "star",
       "en": "transform",
+      "ipa": "/trænsˈfɔːm/",
       "pos": "vt.",
       "zh": "使改观；使变形；使转化"
     },
@@ -46,6 +51,7 @@
       "unit": 2,
       "type": "star",
       "en": "adapt",
+      "ipa": "/əˈdæpt/",
       "pos": "vt. / v.",
       "zh": "vt. 改造；改装；v. （使）适应；（使）适合"
     },
@@ -54,6 +60,7 @@
       "unit": 2,
       "type": "star",
       "en": "ink",
+      "ipa": "/ɪŋk/",
       "pos": "vt. / n.",
       "zh": "vt. 涂墨水于（某物）；n. 墨水；油墨"
     },
@@ -62,6 +69,7 @@
       "unit": 2,
       "type": "star",
       "en": "revolutionary",
+      "ipa": "/ˌrevəˈluːʃənəri/",
       "pos": "a.",
       "zh": "1. 革命性的；突破性的；2. 革命的"
     },
@@ -70,6 +78,7 @@
       "unit": 2,
       "type": "star",
       "en": "explosion",
+      "ipa": "/ɪkˈspləʊʒən/",
       "pos": "n.",
       "zh": "1. 激增；急剧膨胀；2. 爆炸（声）"
     },
@@ -78,6 +87,7 @@
       "unit": 2,
       "type": "star",
       "en": "continent",
+      "ipa": "/ˈkɒntɪnənt/",
       "pos": "n.",
       "zh": "洲；大洲；大陆"
     },
@@ -86,6 +96,7 @@
       "unit": 2,
       "type": "star",
       "en": "quote",
+      "ipa": "/kwəʊt/",
       "pos": "v. / vt.",
       "zh": "v. 引用；引述；vt. 引证；举例"
     },
@@ -94,6 +105,7 @@
       "unit": 2,
       "type": "star",
       "en": "proverb",
+      "ipa": "/ˈprɒvɜːb/",
       "pos": "n.",
       "zh": "谚语；格言"
     },
@@ -102,6 +114,7 @@
       "unit": 2,
       "type": "star",
       "en": "hay",
+      "ipa": "/heɪ/",
       "pos": "n.",
       "zh": "（用作饲料的）干草，草料"
     },
@@ -110,6 +123,7 @@
       "unit": 2,
       "type": "star",
       "en": "agricultural",
+      "ipa": "/ˌæɡrɪˈkʌltʃərəl/",
       "pos": "a.",
       "zh": "农业的；农学的"
     },
@@ -118,6 +132,7 @@
       "unit": 2,
       "type": "star",
       "en": "perspective",
+      "ipa": "/pəˈspektɪv/",
       "pos": "n.",
       "zh": "（思考问题的）角度，观点，想法"
     },
@@ -126,6 +141,7 @@
       "unit": 2,
       "type": "star",
       "en": "philosophy",
+      "ipa": "/fɪˈlɒsəfi/",
       "pos": "n.",
       "zh": "哲学"
     },
@@ -134,6 +150,7 @@
       "unit": 2,
       "type": "star",
       "en": "orientation",
+      "ipa": "/ˌɔːriənˈteɪʃən/",
       "pos": "n.",
       "zh": "1. （新工作或学习课程开始前一段时间的）培训，迎新；2. 目标；方向；兴趣"
     },
@@ -142,6 +159,7 @@
       "unit": 2,
       "type": "star",
       "en": "graduation",
+      "ipa": "/ˌɡrædʒuˈeɪʃən/",
       "pos": "n.",
       "zh": "（大学）毕业"
     },
@@ -150,6 +168,7 @@
       "unit": 2,
       "type": "star",
       "en": "ceremony",
+      "ipa": "/ˈserəməni/",
       "pos": "n.",
       "zh": "典礼；仪式"
     },
@@ -158,6 +177,7 @@
       "unit": 2,
       "type": "star",
       "en": "commencement",
+      "ipa": "/kəˈmensmənt/",
       "pos": "n.",
       "zh": "1. （大学或高中的）毕业典礼；2. 开始；开端"
     },
@@ -166,6 +186,7 @@
       "unit": 2,
       "type": "star",
       "en": "enrich",
+      "ipa": "/ɪnˈrɪtʃ/",
       "pos": "vt.",
       "zh": "使丰富；充实；强化"
     },
@@ -174,6 +195,7 @@
       "unit": 2,
       "type": "star",
       "en": "limit",
+      "ipa": "/ˈlɪmɪt/",
       "pos": "n.",
       "zh": "1. （现有的或可获取的）最大量，极限；2. 限度；极限"
     },
@@ -182,6 +204,7 @@
       "unit": 2,
       "type": "star",
       "en": "expand",
+      "ipa": "/ɪkˈspænd/",
       "pos": "v.",
       "zh": "1. （使）扩大；（使）增加；2. （使）（业务）扩展"
     },
@@ -190,6 +213,7 @@
       "unit": 2,
       "type": "star",
       "en": "boundary",
+      "ipa": "/ˈbaʊndəri/",
       "pos": "n.",
       "zh": "1. 限度；极限；2. 分界线；边界"
     },
@@ -198,6 +222,7 @@
       "unit": 2,
       "type": "star",
       "en": "multiple",
+      "ipa": "/ˈmʌltɪpəl/",
       "pos": "a.",
       "zh": "多个的；多种的"
     },
@@ -206,6 +231,7 @@
       "unit": 2,
       "type": "star",
       "en": "currently",
+      "ipa": "/ˈkʌrəntli/",
       "pos": "ad.",
       "zh": "现时；当前"
     },
@@ -214,6 +240,7 @@
       "unit": 2,
       "type": "star",
       "en": "fluency",
+      "ipa": "/ˈfluːənsi/",
       "pos": "n.",
       "zh": "（尤指外语）流利，流畅"
     },
@@ -222,6 +249,7 @@
       "unit": 2,
       "type": "star",
       "en": "feedback",
+      "ipa": "/ˈfiːdbæk/",
       "pos": "n.",
       "zh": "反馈意见"
     },
@@ -230,6 +258,7 @@
       "unit": 2,
       "type": "star",
       "en": "converse",
+      "ipa": "/kənˈvɜːs/",
       "pos": "vi.",
       "zh": "谈话；交谈"
     },
@@ -238,6 +267,7 @@
       "unit": 2,
       "type": "star",
       "en": "comfort",
+      "ipa": "/ˈkʌmfət/",
       "pos": "n.",
       "zh": "舒适感；满足感"
     },
@@ -246,6 +276,7 @@
       "unit": 2,
       "type": "star",
       "en": "platform",
+      "ipa": "/ˈplætfɔːm/",
       "pos": "n.",
       "zh": "1. 平台（指使用中的计算机系统或软件）；2. 站台；月台"
     },
@@ -254,6 +285,7 @@
       "unit": 2,
       "type": "star",
       "en": "chore",
+      "ipa": "/tʃɔː/",
       "pos": "n.",
       "zh": "1. （必须做的）乏味无聊的事务，困难的工作；2. 家庭杂务；日常琐事"
     },
@@ -262,6 +294,7 @@
       "unit": 2,
       "type": "star",
       "en": "derive",
+      "ipa": "/dɪˈraɪv/",
       "pos": "vt. / v.",
       "zh": "vt. 得到，获得（优势或愉快的感受）；v. 源自；源于"
     },
@@ -270,6 +303,7 @@
       "unit": 2,
       "type": "star",
       "en": "chart",
+      "ipa": "/tʃɑːt/",
       "pos": "n.",
       "zh": "图表；图"
     },
@@ -278,6 +312,7 @@
       "unit": 2,
       "type": "star",
       "en": "breakthrough",
+      "ipa": "/ˈbreɪkθruː/",
       "pos": "n.",
       "zh": "重大进展；突破"
     },
@@ -286,6 +321,7 @@
       "unit": 2,
       "type": "star",
       "en": "essential",
+      "ipa": "/ɪˈsenʃəl/",
       "pos": "a. / n.",
       "zh": "a. 极其重要的；必不可少的；n. 必需品；不可缺少的东西"
     },
@@ -294,6 +330,7 @@
       "unit": 2,
       "type": "star",
       "en": "gendered",
+      "ipa": "/ˈdʒendəd/",
       "pos": "a.",
       "zh": "和性别有关的"
     },
@@ -302,6 +339,7 @@
       "unit": 2,
       "type": "star",
       "en": "automatically",
+      "ipa": "/ˌɔːtəˈmætɪkli/",
       "pos": "ad.",
       "zh": "1. 不假思索地；无意识地；2. 必然随之发生地"
     },
@@ -310,6 +348,7 @@
       "unit": 2,
       "type": "star",
       "en": "strive",
+      "ipa": "/straɪv/",
       "pos": "vi.",
       "zh": "努力；奋斗"
     },
@@ -318,6 +357,7 @@
       "unit": 2,
       "type": "star",
       "en": "pause",
+      "ipa": "/pɔːz/",
       "pos": "n. / vi.",
       "zh": "暂停；停顿"
     },
@@ -326,6 +366,7 @@
       "unit": 2,
       "type": "star",
       "en": "mask",
+      "ipa": "/mɑːsk/",
       "pos": "n.",
       "zh": "面具；面罩；口罩"
     },
@@ -334,6 +375,7 @@
       "unit": 2,
       "type": "star",
       "en": "bother",
+      "ipa": "/ˈbɒðə/",
       "pos": "v.",
       "zh": "1. 打扰；烦扰；2. 努力；尽力；费心"
     },
@@ -342,6 +384,7 @@
       "unit": 2,
       "type": "star",
       "en": "shallow",
+      "ipa": "/ˈʃæləʊ/",
       "pos": "a.",
       "zh": "1. 肤浅的；浅薄的；2. 浅的；不深的"
     },
@@ -350,6 +393,7 @@
       "unit": 2,
       "type": "star",
       "en": "disappointing",
+      "ipa": "/ˌdɪsəˈpɔɪntɪŋ/",
       "pos": "a.",
       "zh": "令人失望的；令人沮丧的"
     },
@@ -358,6 +402,7 @@
       "unit": 2,
       "type": "star",
       "en": "neglect",
+      "ipa": "/nɪˈɡlekt/",
       "pos": "vt.",
       "zh": "1. 忽略；忽视；2. 疏于照料；疏忽"
     },
@@ -366,6 +411,7 @@
       "unit": 2,
       "type": "star",
       "en": "connection",
+      "ipa": "/kəˈnekʃən/",
       "pos": "n.",
       "zh": "（人们、群体之间的）关系，联系"
     },
@@ -374,6 +420,7 @@
       "unit": 2,
       "type": "star",
       "en": "fragment",
+      "ipa": "/ˈfræɡmənt/",
       "pos": "n. / v.",
       "zh": "n. 碎片；片段；v. （使）破碎；（使）分裂"
     },
@@ -382,6 +429,7 @@
       "unit": 2,
       "type": "star",
       "en": "heritage",
+      "ipa": "/ˈherɪtɪdʒ/",
       "pos": "n.",
       "zh": "（文化）遗产；传统"
     },
@@ -390,6 +438,7 @@
       "unit": 2,
       "type": "star",
       "en": "immigrate",
+      "ipa": "/ˈɪmɪɡreɪt/",
       "pos": "vi.",
       "zh": "（为定居而从外国）移居，移入"
     },
@@ -398,6 +447,7 @@
       "unit": 2,
       "type": "star",
       "en": "switch",
+      "ipa": "/swɪtʃ/",
       "pos": "v.",
       "zh": "转换；转变；改变"
     },
@@ -406,6 +456,7 @@
       "unit": 2,
       "type": "star",
       "en": "excel",
+      "ipa": "/ɪkˈsel/",
       "pos": "vi.",
       "zh": "擅长；善于；突出"
     },
@@ -414,6 +465,7 @@
       "unit": 2,
       "type": "star",
       "en": "infrequently",
+      "ipa": "/ɪnˈfriːkwəntli/",
       "pos": "ad.",
       "zh": "很少发生地；罕见地"
     },
@@ -422,6 +474,7 @@
       "unit": 2,
       "type": "star",
       "en": "rarely",
+      "ipa": "/ˈreəli/",
       "pos": "ad.",
       "zh": "很少；不常见；难得"
     },
@@ -430,6 +483,7 @@
       "unit": 2,
       "type": "star",
       "en": "humor",
+      "ipa": "/ˈhjuːmə/",
       "pos": "vt.",
       "zh": "迁就；迎合"
     },
@@ -438,6 +492,7 @@
       "unit": 2,
       "type": "star",
       "en": "escape",
+      "ipa": "/ɪˈskeɪp/",
       "pos": "vt. / vi.",
       "zh": "vt. 被遗忘；被忽略；vi. 逃走；逃离"
     },
@@ -446,6 +501,7 @@
       "unit": 2,
       "type": "star",
       "en": "adopt",
+      "ipa": "/əˈdɒpt/",
       "pos": "vt. / v.",
       "zh": "vt. 采取，采用（不常用的说话、写作或行为方式）；v. 收养；领养"
     },
@@ -454,6 +510,7 @@
       "unit": 2,
       "type": "star",
       "en": "emotional",
+      "ipa": "/ɪˈməʊʃənəl/",
       "pos": "a.",
       "zh": "情绪（上）的；情感（上）的"
     },
@@ -462,6 +519,7 @@
       "unit": 2,
       "type": "star",
       "en": "weaken",
+      "ipa": "/ˈwiːkən/",
       "pos": "v.",
       "zh": "（使）变弱，削弱，减弱"
     },
@@ -470,6 +528,7 @@
       "unit": 2,
       "type": "star",
       "en": "mutual",
+      "ipa": "/ˈmjuːtʃuəl/",
       "pos": "a.",
       "zh": "（情感）相互的，彼此的"
     },
@@ -478,6 +537,7 @@
       "unit": 2,
       "type": "star",
       "en": "barrier",
+      "ipa": "/ˈbæriə/",
       "pos": "n.",
       "zh": "障碍；壁垒"
     },
@@ -486,6 +546,7 @@
       "unit": 2,
       "type": "star",
       "en": "ultimately",
+      "ipa": "/ˈʌltɪmətli/",
       "pos": "ad.",
       "zh": "1. 最后；最终；2. 根本上；最主要地"
     },
@@ -494,6 +555,7 @@
       "unit": 2,
       "type": "star",
       "en": "tone",
+      "ipa": "/təʊn/",
       "pos": "n.",
       "zh": "1. （说话的）声调，语调；2. （说话的）语气，口气，腔调"
     },
@@ -502,6 +564,7 @@
       "unit": 2,
       "type": "star",
       "en": "armed",
+      "ipa": "/ɑːmd/",
       "pos": "a.",
       "zh": "（~ with）具备（足够的知识、技术或装备）的"
     },
@@ -510,6 +573,7 @@
       "unit": 2,
       "type": "star",
       "en": "patience",
+      "ipa": "/ˈpeɪʃəns/",
       "pos": "n.",
       "zh": "（持续等待或长时间做某事的）耐心"
     },
@@ -518,6 +582,7 @@
       "unit": 2,
       "type": "plain",
       "en": "metaphor",
+      "ipa": "/ˈmetəfə/",
       "pos": "n.",
       "zh": "暗喻；隐喻"
     },
@@ -526,6 +591,7 @@
       "unit": 2,
       "type": "plain",
       "en": "integral",
+      "ipa": "/ˈɪntɪɡrəl/",
       "pos": "a.",
       "zh": "（用于构成整体）必需的，必不可少的"
     },
@@ -534,6 +600,7 @@
       "unit": 2,
       "type": "plain",
       "en": "goldsmith",
+      "ipa": "/ˈɡəʊldˌsmɪθ/",
       "pos": "n.",
       "zh": "金匠；金器商"
     },
@@ -542,6 +609,7 @@
       "unit": 2,
       "type": "plain",
       "en": "road map",
+      "ipa": "/ˈrəʊd mæp/",
       "pos": "n.",
       "zh": "指南"
     },
@@ -550,6 +618,7 @@
       "unit": 2,
       "type": "plain",
       "en": "nomadic",
+      "ipa": "/nəʊˈmædɪk/",
       "pos": "a.",
       "zh": "游牧的；流浪的"
     },
@@ -558,6 +627,7 @@
       "unit": 2,
       "type": "plain",
       "en": "Mongolian",
+      "ipa": "/mɒŋˈɡəʊliən/",
       "pos": "n. / a.",
       "zh": "n. 蒙古语；a. 蒙古的；蒙古人的；蒙古语的"
     },
@@ -566,6 +636,7 @@
       "unit": 2,
       "type": "plain",
       "en": "Arabic",
+      "ipa": "/ˈærəbɪk/",
       "pos": "a. / n.",
       "zh": "a. 阿拉伯语的；阿拉伯文字的；阿拉伯文化的；n. 阿拉伯语"
     },
@@ -574,6 +645,7 @@
       "unit": 2,
       "type": "plain",
       "en": "ulcer",
+      "ipa": "/ˈʌlsə/",
       "pos": "n.",
       "zh": "溃疡"
     },
@@ -582,6 +654,7 @@
       "unit": 2,
       "type": "plain",
       "en": "acne",
+      "ipa": "/ˈækni/",
       "pos": "n.",
       "zh": "痤疮；粉刺"
     },
@@ -590,6 +663,7 @@
       "unit": 2,
       "type": "plain",
       "en": "polyglot",
+      "ipa": "/ˈpɒlɪɡlɒt/",
       "pos": "n.",
       "zh": "通晓数种语言的人"
     },
@@ -598,6 +672,7 @@
       "unit": 2,
       "type": "plain",
       "en": "Italian",
+      "ipa": "/ɪˈtæliən/",
       "pos": "a.",
       "zh": "意大利的；意大利人的；意大利语的"
     },
@@ -606,6 +681,7 @@
       "unit": 2,
       "type": "plain",
       "en": "phrasebook",
+      "ipa": "/ˈfreɪzbʊk/",
       "pos": "n.",
       "zh": "（供游客到国外旅行使用的）外语常用语手册"
     },
@@ -614,6 +690,7 @@
       "unit": 2,
       "type": "plain",
       "en": "on-screen",
+      "ipa": "/ˌɒnˈskriːn/",
       "pos": "ad.",
       "zh": "在屏幕上；在电视上；在银幕上"
     },
@@ -622,6 +699,7 @@
       "unit": 2,
       "type": "plain",
       "en": "ingenious",
+      "ipa": "/ɪnˈdʒiːniəs/",
       "pos": "a.",
       "zh": "（计划、主意或物体）精巧的，巧妙的"
     },
@@ -630,6 +708,7 @@
       "unit": 2,
       "type": "plain",
       "en": "recipe",
+      "ipa": "/ˈresəpi/",
       "pos": "n.",
       "zh": "烹饪法；食谱"
     },
@@ -638,6 +717,7 @@
       "unit": 2,
       "type": "plain",
       "en": "mimic",
+      "ipa": "/ˈmɪmɪk/",
       "pos": "vt.",
       "zh": "（为逗乐而）模仿，学……的样子"
     },
@@ -646,6 +726,7 @@
       "unit": 2,
       "type": "plain",
       "en": "vocal",
+      "ipa": "/ˈvəʊkəl/",
       "pos": "a.",
       "zh": "1. 声音的；唱歌的；2. 直言不讳的；强烈反对的"
     },
@@ -654,6 +735,7 @@
       "unit": 2,
       "type": "plain",
       "en": "tongue-tied",
+      "ipa": "/ˈtʌŋ taɪd/",
       "pos": "a.",
       "zh": "（因感到紧张或难堪而）张口结舌的，说不出话的"
     },
@@ -662,6 +744,7 @@
       "unit": 2,
       "type": "plain",
       "en": "signpost",
+      "ipa": "/ˈsaɪnpəʊst/",
       "pos": "n.",
       "zh": "路标"
     },
@@ -670,6 +753,7 @@
       "unit": 2,
       "type": "plain",
       "en": "prep",
+      "ipa": "/prep/",
       "pos": "vt.",
       "zh": "使自己（或他人）准备好做……"
     },
@@ -678,6 +762,7 @@
       "unit": 2,
       "type": "plain",
       "en": "elementary school",
+      "ipa": "/ˌelɪˈmentəri skuːl/",
       "pos": "n.",
       "zh": "（美国的）小学"
     },
@@ -686,6 +771,7 @@
       "unit": 2,
       "type": "plain",
       "en": "bilingual",
+      "ipa": "/baɪˈlɪŋɡwəl/",
       "pos": "a.",
       "zh": "会说两种语言的"
     },
@@ -694,6 +780,7 @@
       "unit": 2,
       "type": "plain",
       "en": "regress",
+      "ipa": "/rɪˈɡres/",
       "pos": "vi.",
       "zh": "退步；退化；倒退"
     },
@@ -702,6 +789,7 @@
       "unit": 2,
       "type": "plain",
       "en": "milestone",
+      "ipa": "/ˈmaɪlstəʊn/",
       "pos": "n.",
       "zh": "重大事件；里程碑"
     },
@@ -710,6 +798,7 @@
       "unit": 2,
       "type": "plain",
       "en": "stammer",
+      "ipa": "/ˈstæmə/",
       "pos": "v.",
       "zh": "口吃；结结巴巴地说"
     },
@@ -718,6 +807,7 @@
       "unit": 2,
       "type": "plain",
       "en": "backlog",
+      "ipa": "/ˈbæklɒɡ/",
       "pos": "n.",
       "zh": "积压未办之事；积压的工作"
     },
@@ -726,6 +816,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "take sb. / sth. for granted",
+      "ipa": "/teɪk ˈsʌmbədi / ˈsʌmθɪŋ fə ˈɡrɑːntɪd/",
       "pos": "phr.",
       "zh": "视某人或某事为理所当然（而对其不重视）"
     },
@@ -734,6 +825,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "point sth. out",
+      "ipa": "/pɔɪnt ˈsʌmθɪŋ aʊt/",
       "pos": "phr.",
       "zh": "指出；指明"
     },
@@ -742,6 +834,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "make hay while the sun shines",
+      "ipa": "/meɪk heɪ waɪl ðə sʌn ʃaɪnz/",
       "pos": "phr.",
       "zh": "晒草要趁太阳好；抓紧时机"
     },
@@ -750,6 +843,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "shed light on sth.",
+      "ipa": "/ʃed laɪt ɒn ˈsʌmθɪŋ/",
       "pos": "phr.",
       "zh": "（提供新资料）使某事物更容易理解"
     },
@@ -758,6 +852,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "take advantage of sth.",
+      "ipa": "/teɪk ədˈvɑːntɪdʒ əv ˈsʌmθɪŋ/",
       "pos": "phr.",
       "zh": "利用某物"
     },
@@ -766,6 +861,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "orient yourself",
+      "ipa": "/ˈɔːrient jɔːˈself/",
       "pos": "phr.",
       "zh": "使自己熟悉新环境"
     },
@@ -774,6 +870,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "have sth. in common (with sb.)",
+      "ipa": "/hæv ˈsʌmθɪŋ ɪn ˈkɒmən (wɪð ˈsʌmbədi)/",
       "pos": "phr.",
       "zh": "（与某人）有共同之处"
     },
@@ -782,6 +879,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "(do sth.) in person",
+      "ipa": "/(duː ˈsʌmθɪŋ) ɪn ˈpɜːsən/",
       "pos": "phr.",
       "zh": "亲自（做某事）"
     },
@@ -790,6 +888,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "figure sth. out",
+      "ipa": "/ˈfɪɡə ˈsʌmθɪŋ aʊt/",
       "pos": "phr.",
       "zh": "弄懂；搞清楚"
     },
@@ -798,6 +897,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "put sth. in",
+      "ipa": "/pʊt ˈsʌmθɪŋ ɪn/",
       "pos": "phr.",
       "zh": "花费（时间或精力）做某事"
     },
@@ -806,6 +906,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "make sense",
+      "ipa": "/meɪk sens/",
       "pos": "phr.",
       "zh": "有意义；表述清晰；易于理解"
     },
@@ -814,6 +915,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "trial and error",
+      "ipa": "/ˈtraɪəl ənd ˈerə/",
       "pos": "phr.",
       "zh": "反复试验（以得出最佳结果）"
     },
@@ -822,6 +924,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "(every) now and then / again",
+      "ipa": "/(ˈevri) naʊ ənd ðen / əˈɡen/",
       "pos": "phr.",
       "zh": "有时；偶尔"
     },
@@ -830,6 +933,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "rule of thumb",
+      "ipa": "/ruːl əv θʌm/",
       "pos": "phr.",
       "zh": "经验之谈；经验法"
     },
@@ -838,6 +942,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "slip your memory / mind",
+      "ipa": "/slɪp jɔː ˈmeməri / maɪnd/",
       "pos": "phr.",
       "zh": "被忘记"
     },
@@ -846,6 +951,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "cut in",
+      "ipa": "/kʌt ɪn/",
       "pos": "phr.",
       "zh": "插嘴；打断别人说话"
     },
@@ -854,6 +960,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "(do sth.) in favor of sth.",
+      "ipa": "/(duː ˈsʌmθɪŋ) ɪn ˈfeɪvər əv ˈsʌmθɪŋ/",
       "pos": "phr.",
       "zh": "决定选……而不选……"
     },
@@ -862,6 +969,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "get together",
+      "ipa": "/ɡet təˈɡeðə/",
       "pos": "phr.",
       "zh": "聚会"
     },
@@ -870,6 +978,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "back and forth",
+      "ipa": "/bæk ənd fɔːθ/",
       "pos": "phr.",
       "zh": "来回地"
     },
@@ -878,6 +987,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "play a role / part",
+      "ipa": "/pleɪ ə rəʊl / pɑːt/",
       "pos": "phr.",
       "zh": "（在……中）起作用"
     },
@@ -886,6 +996,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "other than",
+      "ipa": "/ˈʌðə ðæn/",
       "pos": "phr.",
       "zh": "除了……之外"
     },
@@ -894,6 +1005,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "occur to sb.",
+      "ipa": "/əˈkɜː tə ˈsʌmbədi/",
       "pos": "phr.",
       "zh": "（主意或想法突然）浮现于……脑中，被……想起"
     },
@@ -902,6 +1014,7 @@
       "unit": 2,
       "type": "phrase",
       "en": "in place of sb. / sth.",
+      "ipa": "/ɪn pleɪs əv ˈsʌmbədi / ˈsʌmθɪŋ/",
       "pos": "phr.",
       "zh": "代替某人或某物"
     }

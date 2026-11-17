@@ -562,6 +562,7 @@
 
               <div class="fc-center">
                 <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
+                ${currentWord.ipa ? `<div class="ipa-text fc-ipa">${escapeHtml(currentWord.ipa)}</div>` : ''}
                 ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
               </div>
 
@@ -576,6 +577,7 @@
 
               <div class="fc-center">
                 <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
+                ${currentWord.ipa ? `<div class="ipa-text fc-ipa">${escapeHtml(currentWord.ipa)}</div>` : ''}
                 ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
                 <div class="fc-back-box">
                   <div class="fc-zh">${escapeHtml(currentWord.zh)}</div>
@@ -790,6 +792,7 @@
           <div class="quiz-prompt-row">
             <div>
               <h2 class="quiz-word">${escapeHtml(word.en)}</h2>
+              ${word.ipa ? `<div class="ipa-text" style="margin-top:4px;">${escapeHtml(word.ipa)}</div>` : ''}
               ${word.pos ? `<div class="quiz-pos">${escapeHtml(word.pos)}</div>` : ''}
             </div>
           </div>
@@ -925,6 +928,7 @@
             <div class="quiz-prompt-row" style="margin:10px 0 12px;">
               <div>
                 <div class="quiz-word" style="font-size:22px;">${escapeHtml(q.word.en)}</div>
+                ${q.word.ipa ? `<div class="ipa-text" style="margin-top:3px;">${escapeHtml(q.word.ipa)}</div>` : ''}
                 ${q.word.pos ? `<div class="quiz-pos">${escapeHtml(q.word.pos)}</div>` : ''}
               </div>
             </div>
@@ -1057,7 +1061,7 @@
               ${renderSpeakButton(q.word.en)}
             </div>
             <div style="font-size:18px;font-weight:700;margin-bottom:8px;">
-              ${escapeHtml(q.word.en)} <span style="font-size:13px;color:var(--text-muted);font-weight:500;">${escapeHtml(q.word.pos || '')}</span>
+              ${escapeHtml(q.word.en)} ${q.word.ipa ? `<span class="ipa-text" style="margin-left:6px;font-size:13px;">${escapeHtml(q.word.ipa)}</span>` : ''} <span style="font-size:13px;color:var(--text-muted);font-weight:500;">${escapeHtml(q.word.pos || '')}</span>
             </div>
             <div class="option-list">
               ${q.options
@@ -1160,6 +1164,7 @@
                         <div class="browse-head">
                           <div>
                             <span class="browse-en">${escapeHtml(w.en)}</span>
+                            ${w.ipa ? `<span class="ipa-text browse-ipa">${escapeHtml(w.ipa)}</span>` : ''}
                             ${w.pos ? `<span class="browse-pos">${escapeHtml(w.pos)}</span>` : ''}
                           </div>
                           ${renderSpeakButton(w.en)}
