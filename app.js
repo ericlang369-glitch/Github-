@@ -1406,7 +1406,7 @@
   }
 
   // ---------- F5 Browse & Search View ----------
-  function renderBrowseView() {
+  function getBrowseFilteredItems() {
     const b = state.browse;
     const kw = b.search.trim().toLowerCase();
 
@@ -1416,7 +1416,7 @@
         if (b.unit !== 'all' && String(s.unit) !== b.unit) continue;
         if (b.mastery !== 'all') continue;
         if (kw) {
-          const hay = `${s.zh} ${s.hint} ${s.answer}`.toLowerCase();
+          const hay = `${s.zh} ${s.hint} ${getSentenceAnswer(s)}`.toLowerCase();
           if (!hay.includes(kw)) continue;
         }
         items.push({ kind: 'sentence', data: s });
@@ -1436,44 +1436,15 @@
         items.push({ kind: 'word', data: w, mastery: st });
       }
     }
+    return items;
+  }
 
-    return `
-      <section class="filter-panel">
-        <div class="filter-row">
-          <div class="unit-pills">${renderUnitChips(b.unit, 'browse-unit')}</div>
-        </div>
-        <div class="filter-row">
-          <select id="browse-type-select" class="select-sm" aria-label="按题型筛选">
-            <option value="all" ${b.type === 'all' ? 'selected' : ''}>全部题型</option>
-            <option value="star" ${b.type === 'star' ? 'selected' : ''}>重点词</option>
-            <option value="plain" ${b.type === 'plain' ? 'selected' : ''}>无星词</option>
-            <option value="phrase" ${b.type === 'phrase' ? 'selected' : ''}>短语</option>
-            <option value="sentence" ${b.type === 'sentence' ? 'selected' : ''}>句子（中译英）</option>
-          </select>
-          <select id="browse-mastery-select" class="select-sm" aria-label="按掌握状态筛选">
-            <option value="all" ${b.mastery === 'all' ? 'selected' : ''}>全部状态</option>
-            <option value="unlearned" ${b.mastery === 'unlearned' ? 'selected' : ''}>未学</option>
-            <option value="unknown" ${b.mastery === 'unknown' ? 'selected' : ''}>不认识</option>
-            <option value="fuzzy" ${b.mastery === 'fuzzy' ? 'selected' : ''}>模糊</option>
-            <option value="known" ${b.mastery === 'known' ? 'selected' : ''}>认识</option>
-          </select>
-          <button type="button" id="browse-toggle-ans" class="btn-ghost">
-            ${b.showAnswers ? `${ICONS.eyeOff} 隐藏答案` : `${ICONS.eye} 显示答案`}
-          </button>
-        </div>
-        <div class="search-row">
-          <div class="search-input-wrap">
-            <input id="browse-search-input" class="search-input" type="search" value="${escapeHtml(b.search)}" placeholder="搜索英文、中文或提示词...">
-            ${b.search ? `<button type="button" id="browse-clear-search" class="clear-btn" aria-label="清空搜索">${ICONS.x}</button>` : ''}
-          </div>
-          <span style="font-size:13px;color:var(--text-muted);white-space:nowrap;">共 ${items.length} 条</span>
-        </div>
-      </section>
-
-      ${
-        items.length === 0
-          ? `<div class="empty-box">没有找到匹配的词条或句子。</div>`
-          : `<div class="browse-list">
+  function renderBrowseResultsHtml(items) {
+    const b = state.browse;
+    if (items.length === 0) {
+      return `<div class="empty-box">没有找到匹配的词条或句子。</div>`;
+    }
+    return `<div class="browse-list">
               ${items
                 .map((item) => {
                   if (item.kind === 'word') {
@@ -1563,8 +1534,57 @@
                   `;
                 })
                 .join('')}
-            </div>`
-      }
+            </div>`;
+  }
+
+  function updateBrowseResultsOnly() {
+    const items = getBrowseFilteredItems();
+    const resultsEl = document.getElementById('browse-results');
+    if (resultsEl) resultsEl.innerHTML = renderBrowseResultsHtml(items);
+    const countEl = document.getElementById('browse-count');
+    if (countEl) countEl.textContent = `共 ${items.length} 条`;
+    const clearEl = document.getElementById('browse-clear-search');
+    if (clearEl) clearEl.classList.toggle('hidden', !state.browse.search);
+  }
+
+  function renderBrowseView() {
+    const b = state.browse;
+    const items = getBrowseFilteredItems();
+
+    return `
+      <section class="filter-panel">
+        <div class="filter-row">
+          <div class="unit-pills">${renderUnitChips(b.unit, 'browse-unit')}</div>
+        </div>
+        <div class="filter-row">
+          <select id="browse-type-select" class="select-sm" aria-label="按题型筛选">
+            <option value="all" ${b.type === 'all' ? 'selected' : ''}>全部题型</option>
+            <option value="star" ${b.type === 'star' ? 'selected' : ''}>重点词</option>
+            <option value="plain" ${b.type === 'plain' ? 'selected' : ''}>无星词</option>
+            <option value="phrase" ${b.type === 'phrase' ? 'selected' : ''}>短语</option>
+            <option value="sentence" ${b.type === 'sentence' ? 'selected' : ''}>句子（中译英）</option>
+          </select>
+          <select id="browse-mastery-select" class="select-sm" aria-label="按掌握状态筛选">
+            <option value="all" ${b.mastery === 'all' ? 'selected' : ''}>全部状态</option>
+            <option value="unlearned" ${b.mastery === 'unlearned' ? 'selected' : ''}>未学</option>
+            <option value="unknown" ${b.mastery === 'unknown' ? 'selected' : ''}>不认识</option>
+            <option value="fuzzy" ${b.mastery === 'fuzzy' ? 'selected' : ''}>模糊</option>
+            <option value="known" ${b.mastery === 'known' ? 'selected' : ''}>认识</option>
+          </select>
+          <button type="button" id="browse-toggle-ans" class="btn-ghost">
+            ${b.showAnswers ? `${ICONS.eyeOff} 隐藏答案` : `${ICONS.eye} 显示答案`}
+          </button>
+        </div>
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <input id="browse-search-input" class="search-input" type="search" value="${escapeHtml(b.search)}" placeholder="搜索英文、中文或提示词..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <button type="button" id="browse-clear-search" class="clear-btn ${b.search ? '' : 'hidden'}" aria-label="清空搜索">${ICONS.x}</button>
+          </div>
+          <span id="browse-count" style="font-size:13px;color:var(--text-muted);white-space:nowrap;">共 ${items.length} 条</span>
+        </div>
+      </section>
+
+      <div id="browse-results">${renderBrowseResultsHtml(items)}</div>
     `;
   }
 
@@ -2032,17 +2052,28 @@
       }
     });
 
+    let isComposing = false;
+
+    main.addEventListener('compositionstart', (e) => {
+      if (e.target && e.target.id === 'browse-search-input') {
+        isComposing = true;
+      }
+    });
+
+    main.addEventListener('compositionend', (e) => {
+      if (e.target && e.target.id === 'browse-search-input') {
+        isComposing = false;
+        state.browse.search = e.target.value;
+        updateBrowseResultsOnly();
+      }
+    });
+
     main.addEventListener('input', (e) => {
       const target = e.target;
       if (target.id === 'browse-search-input') {
+        if (e.isComposing || isComposing) return;
         state.browse.search = target.value;
-        const pos = target.selectionStart;
-        render();
-        const nextInput = document.getElementById('browse-search-input');
-        if (nextInput) {
-          nextInput.focus();
-          if (typeof pos === 'number') nextInput.setSelectionRange(pos, pos);
-        }
+        updateBrowseResultsOnly();
       } else if (target.dataset.examSentence) {
         state.exam.sentenceInputs[target.dataset.examSentence] = target.value;
         // Update sticky answered count without full re-render
