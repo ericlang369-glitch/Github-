@@ -1,0 +1,923 @@
+{
+  "unit": 1,
+  "words": [
+    {
+      "id": "u1-fresher",
+      "unit": 1,
+      "type": "star",
+      "en": "fresher",
+      "pos": "n.",
+      "zh": "（学院或大学的）一年级新生"
+    },
+    {
+      "id": "u1-barely",
+      "unit": 1,
+      "type": "star",
+      "en": "barely",
+      "pos": "ad.",
+      "zh": "仅仅；勉强地；几乎没有"
+    },
+    {
+      "id": "u1-muscle",
+      "unit": 1,
+      "type": "star",
+      "en": "muscle",
+      "pos": "n.",
+      "zh": "肌肉"
+    },
+    {
+      "id": "u1-suitcase",
+      "unit": 1,
+      "type": "star",
+      "en": "suitcase",
+      "pos": "n.",
+      "zh": "（旅行用）手提箱"
+    },
+    {
+      "id": "u1-tutor",
+      "unit": 1,
+      "type": "star",
+      "en": "tutor",
+      "pos": "n.",
+      "zh": "1.（英国大学或学院中的）导师，助教 2. 家庭教师；私人教师"
+    },
+    {
+      "id": "u1-sloping",
+      "unit": 1,
+      "type": "star",
+      "en": "sloping",
+      "pos": "a.",
+      "zh": "倾斜的；有坡度的"
+    },
+    {
+      "id": "u1-peer",
+      "unit": 1,
+      "type": "star",
+      "en": "peer",
+      "pos": "vi. / n.",
+      "zh": "vi. （尤指因看不清而）盯着看，凝视；n. 同龄人；社会地位相同的人；同行"
+    },
+    {
+      "id": "u1-spill",
+      "unit": 1,
+      "type": "star",
+      "en": "spill",
+      "pos": "v.",
+      "zh": "（使）（液体）溢出（泼洒，溅出）"
+    },
+    {
+      "id": "u1-splendid",
+      "unit": 1,
+      "type": "star",
+      "en": "splendid",
+      "pos": "a.",
+      "zh": "极棒的；极好的"
+    },
+    {
+      "id": "u1-sip",
+      "unit": 1,
+      "type": "star",
+      "en": "sip",
+      "pos": "n. / v.",
+      "zh": "n. 一小口（饮料）；一啜之量；v. 小口地喝；抿；呷"
+    },
+    {
+      "id": "u1-canteen",
+      "unit": 1,
+      "type": "star",
+      "en": "canteen",
+      "pos": "n.",
+      "zh": "（工厂、学校等的）食堂，餐厅"
+    },
+    {
+      "id": "u1-wind",
+      "unit": 1,
+      "type": "star",
+      "en": "wind",
+      "pos": "v.",
+      "zh": "（沿路线或小道）弯曲前进，迂回行进"
+    },
+    {
+      "id": "u1-pile",
+      "unit": 1,
+      "type": "star",
+      "en": "pile",
+      "pos": "vt. / n.",
+      "zh": "vt. 堆放；摞起；n. 堆；叠；摞"
+    },
+    {
+      "id": "u1-appetite",
+      "unit": 1,
+      "type": "star",
+      "en": "appetite",
+      "pos": "n.",
+      "zh": "胃口；食欲"
+    },
+    {
+      "id": "u1-lecture",
+      "unit": 1,
+      "type": "star",
+      "en": "lecture",
+      "pos": "n.",
+      "zh": "（尤指大学里的）讲座，演讲"
+    },
+    {
+      "id": "u1-literature",
+      "unit": 1,
+      "type": "star",
+      "en": "literature",
+      "pos": "n.",
+      "zh": "文学；文学作品"
+    },
+    {
+      "id": "u1-undergraduate",
+      "unit": 1,
+      "type": "star",
+      "en": "undergraduate",
+      "pos": "n.",
+      "zh": "（在读的）大学（本科）生"
+    },
+    {
+      "id": "u1-frighteningly",
+      "unit": 1,
+      "type": "star",
+      "en": "frighteningly",
+      "pos": "ad.",
+      "zh": "1.（用于强调）非常，极其 2. 令人恐惧地；令人不安地"
+    },
+    {
+      "id": "u1-impressive",
+      "unit": 1,
+      "type": "star",
+      "en": "impressive",
+      "pos": "a.",
+      "zh": "令人钦佩的；给人深刻印象的"
+    },
+    {
+      "id": "u1-ignorant",
+      "unit": 1,
+      "type": "star",
+      "en": "ignorant",
+      "pos": "a.",
+      "zh": "无知的；愚昧的"
+    },
+    {
+      "id": "u1-rent",
+      "unit": 1,
+      "type": "star",
+      "en": "rent",
+      "pos": "vt. / v.",
+      "zh": "vt. 出租（房屋、房间、土地等）；v. 租（房）；租用"
+    },
+    {
+      "id": "u1-swear",
+      "unit": 1,
+      "type": "star",
+      "en": "swear",
+      "pos": "vt. / vi.",
+      "zh": "vt. 起誓保证（做某事）；vi. 诅咒；咒骂；说脏话"
+    },
+    {
+      "id": "u1-iron",
+      "unit": 1,
+      "type": "star",
+      "en": "iron",
+      "pos": "vt.",
+      "zh": "（用熨斗）熨平"
+    },
+    {
+      "id": "u1-anxious",
+      "unit": 1,
+      "type": "star",
+      "en": "anxious",
+      "pos": "a.",
+      "zh": "焦虑的；不安的"
+    },
+    {
+      "id": "u1-schedule",
+      "unit": 1,
+      "type": "star",
+      "en": "schedule",
+      "pos": "n.",
+      "zh": "计划表；日程表"
+    },
+    {
+      "id": "u1-frankly",
+      "unit": 1,
+      "type": "star",
+      "en": "frankly",
+      "pos": "ad.",
+      "zh": "坦白说；坦率地说"
+    },
+    {
+      "id": "u1-complicated",
+      "unit": 1,
+      "type": "star",
+      "en": "complicated",
+      "pos": "a.",
+      "zh": "难懂的；难处理的；复杂的"
+    },
+    {
+      "id": "u1-appreciate",
+      "unit": 1,
+      "type": "star",
+      "en": "appreciate",
+      "pos": "vt.",
+      "zh": "理解；明白"
+    },
+    {
+      "id": "u1-distinguish",
+      "unit": 1,
+      "type": "star",
+      "en": "distinguish",
+      "pos": "v.",
+      "zh": "区分；辨别"
+    },
+    {
+      "id": "u1-minor",
+      "unit": 1,
+      "type": "star",
+      "en": "minor",
+      "pos": "a.",
+      "zh": "（尤指与其他事物相比）小的，不很重要的"
+    },
+    {
+      "id": "u1-attentively",
+      "unit": 1,
+      "type": "star",
+      "en": "attentively",
+      "pos": "ad.",
+      "zh": "注意地；专心地"
+    },
+    {
+      "id": "u1-crucially",
+      "unit": 1,
+      "type": "star",
+      "en": "crucially",
+      "pos": "ad.",
+      "zh": "至关重要地；关键性地"
+    },
+    {
+      "id": "u1-disaster",
+      "unit": 1,
+      "type": "star",
+      "en": "disaster",
+      "pos": "n.",
+      "zh": "1. 灾难；不幸；彻底失败 2. 灾难；灾祸"
+    },
+    {
+      "id": "u1-grant",
+      "unit": 1,
+      "type": "star",
+      "en": "grant",
+      "pos": "n. / vt.",
+      "zh": "n. （尤指政府发给的）补助金，拨款；vt. 给予；准予"
+    },
+    {
+      "id": "u1-millionaire",
+      "unit": 1,
+      "type": "star",
+      "en": "millionaire",
+      "pos": "n.",
+      "zh": "富豪；百万富翁"
+    },
+    {
+      "id": "u1-purchase",
+      "unit": 1,
+      "type": "star",
+      "en": "purchase",
+      "pos": "vt.",
+      "zh": "买；购买"
+    },
+    {
+      "id": "u1-initially",
+      "unit": 1,
+      "type": "star",
+      "en": "initially",
+      "pos": "ad.",
+      "zh": "起初"
+    },
+    {
+      "id": "u1-intelligent",
+      "unit": 1,
+      "type": "star",
+      "en": "intelligent",
+      "pos": "a.",
+      "zh": "有智慧的；聪明的"
+    },
+    {
+      "id": "u1-dumb",
+      "unit": 1,
+      "type": "star",
+      "en": "dumb",
+      "pos": "a.",
+      "zh": "愚蠢的"
+    },
+    {
+      "id": "u1-deficiency",
+      "unit": 1,
+      "type": "star",
+      "en": "deficiency",
+      "pos": "n.",
+      "zh": "1. 缺点；毛病 2. 不足；缺乏"
+    },
+    {
+      "id": "u1-embrace",
+      "unit": 1,
+      "type": "star",
+      "en": "embrace",
+      "pos": "vt. / v.",
+      "zh": "vt. 欣然接受，乐意采纳（新思想、意见等）；v. 抱；拥抱"
+    },
+    {
+      "id": "u1-virtue",
+      "unit": 1,
+      "type": "star",
+      "en": "virtue",
+      "pos": "n.",
+      "zh": "善；美德"
+    },
+    {
+      "id": "u1-countless",
+      "unit": 1,
+      "type": "star",
+      "en": "countless",
+      "pos": "a.",
+      "zh": "无数的；数不尽的"
+    },
+    {
+      "id": "u1-routine",
+      "unit": 1,
+      "type": "star",
+      "en": "routine",
+      "pos": "n.",
+      "zh": "惯例；例行公事"
+    },
+    {
+      "id": "u1-stress",
+      "unit": 1,
+      "type": "star",
+      "en": "stress",
+      "pos": "n.",
+      "zh": "压力；忧虑；紧张"
+    },
+    {
+      "id": "u1-treat",
+      "unit": 1,
+      "type": "star",
+      "en": "treat",
+      "pos": "n.",
+      "zh": "（尤指不经常吃的）美味食物"
+    },
+    {
+      "id": "u1-appealing",
+      "unit": 1,
+      "type": "star",
+      "en": "appealing",
+      "pos": "a.",
+      "zh": "有吸引力的；有趣的"
+    },
+    {
+      "id": "u1-seminar",
+      "unit": 1,
+      "type": "star",
+      "en": "seminar",
+      "pos": "n.",
+      "zh": "（大学里师生分组进行专题讨论的）讨论课"
+    },
+    {
+      "id": "u1-assignment",
+      "unit": 1,
+      "type": "star",
+      "en": "assignment",
+      "pos": "n.",
+      "zh": "作业；分派的任务"
+    },
+    {
+      "id": "u1-explore",
+      "unit": 1,
+      "type": "star",
+      "en": "explore",
+      "pos": "vt.",
+      "zh": "探讨；探究"
+    },
+    {
+      "id": "u1-gain",
+      "unit": 1,
+      "type": "star",
+      "en": "gain",
+      "pos": "v. / vt.",
+      "zh": "v. 逐渐获得（有用或宝贵的品质、感觉等）；vt. 获得，赢得，取得（想要或需要的东西）"
+    },
+    {
+      "id": "u1-beneficial",
+      "unit": 1,
+      "type": "star",
+      "en": "beneficial",
+      "pos": "a.",
+      "zh": "有利的；有帮助的"
+    },
+    {
+      "id": "u1-numerous",
+      "unit": 1,
+      "type": "star",
+      "en": "numerous",
+      "pos": "a.",
+      "zh": "许多的；很多的"
+    },
+    {
+      "id": "u1-volunteer",
+      "unit": 1,
+      "type": "star",
+      "en": "volunteer",
+      "pos": "v. / n.",
+      "zh": "v. 自愿（做某事）；自告奋勇；n. 志愿者；义务工作者"
+    },
+    {
+      "id": "u1-charity",
+      "unit": 1,
+      "type": "star",
+      "en": "charity",
+      "pos": "n.",
+      "zh": "慈善机构；慈善团体"
+    },
+    {
+      "id": "u1-sociable",
+      "unit": 1,
+      "type": "star",
+      "en": "sociable",
+      "pos": "a.",
+      "zh": "（工作、时间和环境等允许）社交的，交际的"
+    },
+    {
+      "id": "u1-nationality",
+      "unit": 1,
+      "type": "star",
+      "en": "nationality",
+      "pos": "n.",
+      "zh": "国籍"
+    },
+    {
+      "id": "u1-unique",
+      "unit": 1,
+      "type": "star",
+      "en": "unique",
+      "pos": "a.",
+      "zh": "独特的；罕见的"
+    },
+    {
+      "id": "u1-bond",
+      "unit": 1,
+      "type": "star",
+      "en": "bond",
+      "pos": "vi.",
+      "zh": "建立感情；建立友谊；团结在一起"
+    },
+    {
+      "id": "u1-statistics",
+      "unit": 1,
+      "type": "star",
+      "en": "statistics",
+      "pos": "n.",
+      "zh": "统计数字（资料）"
+    },
+    {
+      "id": "u1-hall-of-residence",
+      "unit": 1,
+      "type": "plain",
+      "en": "hall of residence",
+      "pos": "n.",
+      "zh": "（学院或大学的）学生宿舍"
+    },
+    {
+      "id": "u1-flushed",
+      "unit": 1,
+      "type": "plain",
+      "en": "flushed",
+      "pos": "a.",
+      "zh": "脸红的"
+    },
+    {
+      "id": "u1-gasp",
+      "unit": 1,
+      "type": "plain",
+      "en": "gasp",
+      "pos": "vi.",
+      "zh": "（由于呼吸困难而）急促吸气"
+    },
+    {
+      "id": "u1-full-length",
+      "unit": 1,
+      "type": "plain",
+      "en": "full-length",
+      "pos": "ad.",
+      "zh": "脚伸直地；平躺地"
+    },
+    {
+      "id": "u1-jerk",
+      "unit": 1,
+      "type": "plain",
+      "en": "jerk",
+      "pos": "v.",
+      "zh": "（使）猝然一动；（使）猛然一动"
+    },
+    {
+      "id": "u1-stumble",
+      "unit": 1,
+      "type": "plain",
+      "en": "stumble",
+      "pos": "vi.",
+      "zh": "1. 跌跌撞撞地走；蹒跚而行 2. 绊脚；绊倒"
+    },
+    {
+      "id": "u1-self-service",
+      "unit": 1,
+      "type": "plain",
+      "en": "self-service",
+      "pos": "a.",
+      "zh": "（餐馆、商店等）自助（式）的"
+    },
+    {
+      "id": "u1-artificial-intelligence",
+      "unit": 1,
+      "type": "plain",
+      "en": "artificial intelligence",
+      "pos": "n.",
+      "zh": "人工智能"
+    },
+    {
+      "id": "u1-reassure",
+      "unit": 1,
+      "type": "plain",
+      "en": "reassure",
+      "pos": "vt.",
+      "zh": "使安心；使放心；使消除疑虑"
+    },
+    {
+      "id": "u1-inordinately",
+      "unit": 1,
+      "type": "plain",
+      "en": "inordinately",
+      "pos": "ad.",
+      "zh": "过度地；超乎预料地"
+    },
+    {
+      "id": "u1-roommate",
+      "unit": 1,
+      "type": "plain",
+      "en": "roommate",
+      "pos": "n.",
+      "zh": "（尤指大学里的）室友"
+    },
+    {
+      "id": "u1-inherently",
+      "unit": 1,
+      "type": "plain",
+      "en": "inherently",
+      "pos": "ad.",
+      "zh": "固有地；内在地"
+    },
+    {
+      "id": "u1-gpa",
+      "unit": 1,
+      "type": "plain",
+      "en": "GPA",
+      "pos": "n.",
+      "zh": "（美国教育体制中的）平均学分绩点"
+    },
+    {
+      "id": "u1-vice",
+      "unit": 1,
+      "type": "plain",
+      "en": "vice",
+      "pos": "n.",
+      "zh": "1. 邪恶；恶行 2. （涉及性或毒品的）罪恶，恶行"
+    },
+    {
+      "id": "u1-self-reliance",
+      "unit": 1,
+      "type": "plain",
+      "en": "self-reliance",
+      "pos": "n.",
+      "zh": "自主；自立"
+    },
+    {
+      "id": "u1-timetable",
+      "unit": 1,
+      "type": "plain",
+      "en": "timetable",
+      "pos": "n.",
+      "zh": "1.（事件或活动的）时间表，日程表 2.（公共汽车、火车、飞机等的）运行时间表，时刻表"
+    },
+    {
+      "id": "u1-extracurricular",
+      "unit": 1,
+      "type": "plain",
+      "en": "extracurricular",
+      "pos": "a.",
+      "zh": "课外的"
+    },
+    {
+      "id": "u1-like-minded",
+      "unit": 1,
+      "type": "plain",
+      "en": "like-minded",
+      "pos": "a.",
+      "zh": "趣味相投的；想法一致的"
+    },
+    {
+      "id": "u1-melting-pot",
+      "unit": 1,
+      "type": "plain",
+      "en": "melting pot",
+      "pos": "n.",
+      "zh": "大熔炉（指来自不同种族、国家或社会阶层的人生活在一起的地方）"
+    },
+    {
+      "id": "u1-lifelong",
+      "unit": 1,
+      "type": "plain",
+      "en": "lifelong",
+      "pos": "a.",
+      "zh": "终身的；毕生的"
+    },
+    {
+      "id": "u1-navigate",
+      "unit": 1,
+      "type": "plain",
+      "en": "navigate",
+      "pos": "v.",
+      "zh": "1. 理解，应付（困难复杂的情况） 2.（为……）导航，指引方向"
+    },
+    {
+      "id": "u1-cliche",
+      "unit": 1,
+      "type": "plain",
+      "en": "cliché",
+      "pos": "n.",
+      "zh": "陈词滥调；老生常谈"
+    },
+    {
+      "id": "u1-out-of-order",
+      "unit": 1,
+      "type": "phrase",
+      "en": "out of order",
+      "pos": "phr.",
+      "zh": "（机器或设备）发生故障的，失灵的"
+    },
+    {
+      "id": "u1-stretch-out",
+      "unit": 1,
+      "type": "phrase",
+      "en": "stretch out",
+      "pos": "phr.",
+      "zh": "躺下（睡觉或休息）"
+    },
+    {
+      "id": "u1-make-an-effort-to-do-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "make an effort (to do sth.)",
+      "pos": "phr.",
+      "zh": "尽量试着，勉强试着（做某事）"
+    },
+    {
+      "id": "u1-join-a-queue",
+      "unit": 1,
+      "type": "phrase",
+      "en": "join a queue",
+      "pos": "phr.",
+      "zh": "排入队伍"
+    },
+    {
+      "id": "u1-pull-on-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "pull on sth.",
+      "pos": "phr.",
+      "zh": "（尤指迅速地）穿上，戴上"
+    },
+    {
+      "id": "u1-go-along",
+      "unit": 1,
+      "type": "phrase",
+      "en": "go along",
+      "pos": "phr.",
+      "zh": "去参加；去往"
+    },
+    {
+      "id": "u1-sign-up-for-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "sign up for sth.",
+      "pos": "phr.",
+      "zh": "报名"
+    },
+    {
+      "id": "u1-as-long-as",
+      "unit": 1,
+      "type": "phrase",
+      "en": "as long as",
+      "pos": "phr.",
+      "zh": "只要"
+    },
+    {
+      "id": "u1-burst-into-tears",
+      "unit": 1,
+      "type": "phrase",
+      "en": "burst into tears",
+      "pos": "phr.",
+      "zh": "突然哭起来"
+    },
+    {
+      "id": "u1-run-out-of-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "run out of sth.",
+      "pos": "phr.",
+      "zh": "用完；耗尽"
+    },
+    {
+      "id": "u1-all-the-time",
+      "unit": 1,
+      "type": "phrase",
+      "en": "all the time",
+      "pos": "phr.",
+      "zh": "一直；始终；经常"
+    },
+    {
+      "id": "u1-miss-out-on-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "miss out on sth.",
+      "pos": "phr.",
+      "zh": "错失机会"
+    },
+    {
+      "id": "u1-end-up",
+      "unit": 1,
+      "type": "phrase",
+      "en": "end up",
+      "pos": "phr.",
+      "zh": "（尤指经历一系列意外后）最终处于，到头来"
+    },
+    {
+      "id": "u1-note-sth-down",
+      "unit": 1,
+      "type": "phrase",
+      "en": "note sth. down",
+      "pos": "phr.",
+      "zh": "记下"
+    },
+    {
+      "id": "u1-all-at-once",
+      "unit": 1,
+      "type": "phrase",
+      "en": "all at once",
+      "pos": "phr.",
+      "zh": "一起；同时"
+    },
+    {
+      "id": "u1-resort-to-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "resort to sth.",
+      "pos": "phr.",
+      "zh": "采取，诉诸（不好的方法）"
+    },
+    {
+      "id": "u1-put-sth-together",
+      "unit": 1,
+      "type": "phrase",
+      "en": "put sth. together",
+      "pos": "phr.",
+      "zh": "（通过收集资料、观点等）整理出，拼凑"
+    },
+    {
+      "id": "u1-weed-sb-sth-out",
+      "unit": 1,
+      "type": "phrase",
+      "en": "weed sb. / sth. out",
+      "pos": "phr.",
+      "zh": "除去，淘汰（不合格的人或物）"
+    },
+    {
+      "id": "u1-all-on-your-own",
+      "unit": 1,
+      "type": "phrase",
+      "en": "(all) on your own",
+      "pos": "phr.",
+      "zh": "独立地；无援地"
+    },
+    {
+      "id": "u1-in-depth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "in depth",
+      "pos": "phr.",
+      "zh": "完全地；彻底地"
+    },
+    {
+      "id": "u1-add-to",
+      "unit": 1,
+      "type": "phrase",
+      "en": "add to",
+      "pos": "phr.",
+      "zh": "增加，增添（某种情绪或品质）"
+    },
+    {
+      "id": "u1-set-sth-up",
+      "unit": 1,
+      "type": "phrase",
+      "en": "set sth. up",
+      "pos": "phr.",
+      "zh": "开办；设立"
+    },
+    {
+      "id": "u1-regardless-of",
+      "unit": 1,
+      "type": "phrase",
+      "en": "regardless of",
+      "pos": "phr.",
+      "zh": "不顾；不管"
+    },
+    {
+      "id": "u1-ups-and-downs",
+      "unit": 1,
+      "type": "phrase",
+      "en": "ups and downs",
+      "pos": "phr.",
+      "zh": "盛衰；浮沉；苦乐"
+    },
+    {
+      "id": "u1-make-the-most-of-sth",
+      "unit": 1,
+      "type": "phrase",
+      "en": "make the most of sth.",
+      "pos": "phr.",
+      "zh": "充分利用某事物"
+    }
+  ],
+  "sentences": [
+    {
+      "id": "u1-s1",
+      "unit": 1,
+      "zh": "这所大学新建的图书馆藏书丰富，设施先进，令人印象深刻。",
+      "hint": "impressive",
+      "answer": "The new library at this university has diverse collections of books and advanced equipment, which is impressive.",
+      "pitfalls": [
+        "equipment 为不可数名词，不能加 -s（不能写成 equipments）。",
+        "用非限制性定语从句 , which is impressive 衔接“令人印象深刻”，避免主句出现双谓语。",
+        "介词短语 at this university 放在 library 后作后置定语。"
+      ]
+    },
+    {
+      "id": "u1-s2",
+      "unit": 1,
+      "zh": "我和我的室友对中国传统剪纸很感兴趣，所以我们加入了剪纸俱乐部。",
+      "hint": "go along",
+      "answer": "My roommate and I are really into traditional Chinese paper-cutting, so we went along to the paper-cutting club.",
+      "pitfalls": [
+        "必须使用提示词 go along，且后接具体活动/地点时需加介词 to（go along to ...）。",
+        "“剪纸”写作 paper-cutting（带连字符，不用 paper cuttings）。",
+        "“我和我的室友”作主语用主格 My roommate and I，谓语动词用复数 are。"
+      ]
+    },
+    {
+      "id": "u1-s3",
+      "unit": 1,
+      "zh": "学生食堂汇集了中国各地的美食，我每天都能品尝不同的菜，从来没有过食欲不佳。",
+      "hint": "lose one's appetite",
+      "answer": "Delicious food from all over China gathers in the student canteen. I can taste a variety of dishes every day and have never lost my appetite.",
+      "pitfalls": [
+        "lose one's appetite 中 lose 是动词，不能误作名词使用；“从来没有过”用现在完成时 have never lost my appetite。",
+        "everyday（形容词“日常的”）与 every day（副词短语“每天”）需区分。",
+        "food 为不可数名词，作主语时谓语用单数 gathers；student canteen 前需加定冠词 the。"
+      ]
+    },
+    {
+      "id": "u1-s4",
+      "unit": 1,
+      "zh": "很多高校本科生担任了2022年北京冬奥会志愿者，他们用行动表达了对祖国的热爱。",
+      "hint": "college undergraduate",
+      "answer": "Many college undergraduates served as volunteers for the 2022 Beijing Winter Olympic Games. They demonstrated their love for their motherland through actions.",
+      "pitfalls": [
+        "必须使用提示词 college undergraduate（复数 college undergraduates），勿漏掉 college。",
+        "专有名词 2022 Beijing Winter Olympic Games 首字母需全部大写。",
+        "“用行动”常用 through actions，不用 by actions。"
+      ]
+    },
+    {
+      "id": "u1-s5",
+      "unit": 1,
+      "zh": "中国大学生一般住集体宿舍，大家应该约束自己，不能破坏宿舍的规定。",
+      "hint": "break a rule",
+      "answer": "Chinese college students usually live in dormitories. Everyone should discipline themselves and not break the dormitory rules.",
+      "pitfalls": [
+        "“大学生”用 college students，不要漏掉 college。",
+        "“约束自己”可用 discipline themselves。",
+        "“宿舍规定”用 dormitory rules（不用缩写 dorm）。"
+      ]
+    }
+  ]
+}

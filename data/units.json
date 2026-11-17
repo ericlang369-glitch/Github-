@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "units": [
+    {
+      "id": 1,
+      "title": "Unit 1",
+      "subtitle": "Diary of a fresher & Settling down",
+      "file": "./data/unit-1.json"
+    },
+    {
+      "id": 2,
+      "title": "Unit 2",
+      "subtitle": "Metaphors for language & Polyglots",
+      "file": "./data/unit-2.json"
+    }
+  ]
+}

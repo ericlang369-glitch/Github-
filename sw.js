@@ -1,11 +1,12 @@
-const CACHE_NAME = 'vocab-app-cache-v1';
+const STATIC_CACHE = 'vocab-static-v2';
+const DATA_CACHE = 'vocab-data-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
-  './data.json',
   './manifest.webmanifest',
+  './data/units.json',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -13,22 +14,29 @@ const CORE_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(CORE_ASSETS))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  const keep = new Set([STATIC_CACHE, DATA_CACHE]);
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+    caches.keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => !keep.has(key))
+            .map((key) => caches.delete(key))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
 });
+
+function isDataRequest(pathname) {
+  return /\/data\/(units|unit-[^/]+)\.json$/i.test(pathname);
+}
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
@@ -36,12 +44,15 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Navigation: network-first with index.html fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put('./index.html', copy));
+          }
           return res;
         })
         .catch(() => caches.match('./index.html', { ignoreSearch: true }))
@@ -49,13 +60,30 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Data JSON (./data/units.json & ./data/unit-*.json): network-first, dynamically cached
+  if (isDataRequest(url.pathname)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(DATA_CACHE).then((cache) => cache.put(event.request, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(event.request, { ignoreSearch: true }))
+    );
+    return;
+  }
+
+  // Static assets: cache-first with network fallback
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((res) => {
         if (res && res.status === 200) {
           const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, copy));
         }
         return res;
       });

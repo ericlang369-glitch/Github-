@@ -8,13 +8,47 @@
     unknown: '不认识'
   };
   const TYPE_LABELS = {
-    star: '★ 重点',
+    star: '重点',
     plain: '无星词',
     phrase: '短语',
     sentence: '句子'
   };
 
+  const ICONS = {
+    speaker:
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+    star:
+      '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    check:
+      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>',
+    x:
+      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    help:
+      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    shuffle:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>',
+    arrowLeft:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    arrowRight:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    eye:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+    eyeOff:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+    copy:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    download:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+    trash:
+      '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+  };
+
+  function renderSpeakButton(text, label = '', ariaLabel = '朗读英文') {
+    return `<button type="button" class="speak-btn" data-speak="${escapeHtml(text)}" aria-label="${escapeHtml(ariaLabel)}"><span class="tts-icon">${ICONS.speaker}</span><span class="tts-bars hidden" aria-hidden="true"><span class="tts-bar"></span><span class="tts-bar"></span><span class="tts-bar"></span></span>${label ? `<span>${escapeHtml(label)}</span>` : ''}</button>`;
+  }
+
   const state = {
+    units: [],
     data: { words: [], sentences: [] },
     wordMap: new Map(),
     tab: 'flashcard',
@@ -296,12 +330,27 @@
   }
 
   // ---------- F3 Speech Synthesis ----------
+  let activeSpeakBtn = null;
+
+  function setSpeakBtnActive(btnEl, isActive) {
+    if (!btnEl) return;
+    btnEl.classList.toggle('tts-speaking', isActive);
+    btnEl.classList.toggle('speaking', isActive);
+    const iconEl = btnEl.querySelector('.tts-icon');
+    const barsEl = btnEl.querySelector('.tts-bars');
+    if (iconEl) iconEl.classList.toggle('hidden', isActive);
+    if (barsEl) barsEl.classList.toggle('hidden', !isActive);
+  }
+
   function speakEnglish(text, btnEl) {
     if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
       showToast('当前环境不支持语音朗读，请使用系统浏览器或 Chrome/Safari');
       return;
     }
     try {
+      if (activeSpeakBtn && activeSpeakBtn !== btnEl) {
+        setSpeakBtnActive(activeSpeakBtn, false);
+      }
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
@@ -317,17 +366,26 @@
       }
       utter.rate = 0.95;
 
-      if (btnEl) btnEl.classList.add('speaking');
+      activeSpeakBtn = btnEl || null;
+      setSpeakBtnActive(btnEl, true);
+
+      utter.onstart = () => {
+        activeSpeakBtn = btnEl || null;
+        setSpeakBtnActive(btnEl, true);
+      };
       utter.onend = () => {
-        if (btnEl) btnEl.classList.remove('speaking');
+        setSpeakBtnActive(btnEl, false);
+        if (activeSpeakBtn === btnEl) activeSpeakBtn = null;
       };
       utter.onerror = () => {
-        if (btnEl) btnEl.classList.remove('speaking');
+        setSpeakBtnActive(btnEl, false);
+        if (activeSpeakBtn === btnEl) activeSpeakBtn = null;
         showToast('语音朗读失败，请检查设备音量或系统语音引擎');
       };
       window.speechSynthesis.speak(utter);
     } catch {
-      if (btnEl) btnEl.classList.remove('speaking');
+      setSpeakBtnActive(btnEl, false);
+      if (activeSpeakBtn === btnEl) activeSpeakBtn = null;
       showToast('当前环境无法启动语音朗读');
     }
   }
@@ -370,14 +428,18 @@
   }
 
   function renderUnitChips(current, attrName) {
-    return [
-      { v: 'all', label: '全部单元' },
-      { v: '1', label: 'Unit 1' },
-      { v: '2', label: 'Unit 2' }
-    ]
+    const opts = [
+      { v: 'all', label: '全部单元', title: '' },
+      ...state.units.map((u) => ({
+        v: String(u.id),
+        label: u.title || `Unit ${u.id}`,
+        title: u.subtitle || ''
+      }))
+    ];
+    return opts
       .map(
         (opt) =>
-          `<button type="button" class="chip-btn ${current === opt.v ? 'active' : ''}" data-${attrName}="${opt.v}">${opt.label}</button>`
+          `<button type="button" class="chip-btn unit-pill ${current === opt.v ? 'active' : ''}" data-${attrName}="${escapeHtml(opt.v)}"${opt.title ? ` title="${escapeHtml(opt.title)}"` : ''}>${escapeHtml(opt.label)}</button>`
       )
       .join('');
   }
@@ -391,7 +453,8 @@
           : type === 'phrase'
             ? 'badge-phrase'
             : 'badge-sentence';
-    return `<span class="badge ${cls}">${TYPE_LABELS[type] || type}</span>`;
+    const icon = type === 'star' ? ICONS.star : '';
+    return `<span class="badge ${cls}">${icon}${escapeHtml(TYPE_LABELS[type] || type)}</span>`;
   }
 
   function renderMasteryBadge(status) {
@@ -431,21 +494,38 @@
     render();
   }
 
+  function toggleFlashcardFlip() {
+    state.flashcard.flipped = !state.flashcard.flipped;
+    const card = document.getElementById('fc-card');
+    if (card) {
+      card.classList.toggle('is-flipped', state.flashcard.flipped);
+    } else {
+      render();
+    }
+  }
+
   function renderFlashcardView() {
     const fc = state.flashcard;
     const total = fc.order.length;
     const currentWord = total > 0 ? state.wordMap.get(fc.order[fc.index]) : null;
     const currentStatus = currentWord ? getWordMastery(currentWord.id) : 'unlearned';
+    const badgesHtml = currentWord
+      ? `
+        <span class="badge badge-unit">Unit ${escapeHtml(currentWord.unit)}</span>
+        ${renderTypeBadge(currentWord.type)}
+        ${renderMasteryBadge(currentStatus)}
+      `
+      : '';
 
     return `
       <section class="filter-panel">
         <div class="filter-row">
-          <div class="chip-group">${renderUnitChips(fc.unit, 'fc-unit')}</div>
+          <div class="unit-pills">${renderUnitChips(fc.unit, 'fc-unit')}</div>
         </div>
         <div class="filter-row">
           <select id="fc-type-select" class="select-sm" aria-label="按题型筛选">
             <option value="all" ${fc.type === 'all' ? 'selected' : ''}>全部词型</option>
-            <option value="star" ${fc.type === 'star' ? 'selected' : ''}>★ 重点词</option>
+            <option value="star" ${fc.type === 'star' ? 'selected' : ''}>重点词</option>
             <option value="plain" ${fc.type === 'plain' ? 'selected' : ''}>无星词</option>
             <option value="phrase" ${fc.type === 'phrase' ? 'selected' : ''}>短语</option>
           </select>
@@ -456,7 +536,7 @@
             <option value="fuzzy" ${fc.mastery === 'fuzzy' ? 'selected' : ''}>模糊</option>
             <option value="known" ${fc.mastery === 'known' ? 'selected' : ''}>认识</option>
           </select>
-          <button type="button" id="fc-shuffle-btn" class="btn-ghost">🔀 打乱</button>
+          <button type="button" id="fc-shuffle-btn" class="btn-ghost">${ICONS.shuffle} 打乱</button>
         </div>
       </section>
 
@@ -469,30 +549,40 @@
           <span>右滑认识 · 上滑模糊 · 左滑不认识</span>
         </div>
 
-        <div class="fc-stage">
-          <div id="fc-card" class="fc-card" tabindex="0" role="button" aria-label="闪卡，点击翻面">
-            <span id="fc-swipe-tag" class="fc-swipe-tag"></span>
-            <div class="fc-top">
-              <div class="fc-badges">
-                <span class="badge badge-unit">Unit ${currentWord.unit}</span>
-                ${renderTypeBadge(currentWord.type)}
-                ${renderMasteryBadge(currentStatus)}
+        <div class="flashcard-stage">
+          <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.check} 认识</span>
+          <span class="swipe-badge swipe-badge-fuzzy" aria-hidden="true">${ICONS.help} 模糊</span>
+          <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">${ICONS.x} 不认识</span>
+          <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
+            <div class="flashcard-front">
+              <div class="fc-top">
+                <div class="fc-badges">${badgesHtml}</div>
+                ${renderSpeakButton(currentWord.en, '读')}
               </div>
-              <button type="button" class="speak-btn" data-speak="${escapeHtml(currentWord.en)}" aria-label="朗读英文">🔊 读</button>
+
+              <div class="fc-center">
+                <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
+                ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
+              </div>
+
+              <div class="fc-hint-line">点击卡片或按空格键查看中文释义</div>
             </div>
 
-            <div class="fc-center">
-              <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
-              ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
-              ${
-                fc.flipped
-                  ? `<div class="fc-back-box"><div class="fc-zh">${escapeHtml(currentWord.zh)}</div></div>`
-                  : ''
-              }
-            </div>
+            <div class="flashcard-back">
+              <div class="fc-top">
+                <div class="fc-badges">${badgesHtml}</div>
+                ${renderSpeakButton(currentWord.en, '读')}
+              </div>
 
-            <div class="fc-hint-line">
-              ${fc.flipped ? '已翻面：请选择掌握程度或滑动切卡' : '点击卡片或按空格键查看中文释义'}
+              <div class="fc-center">
+                <h2 class="fc-word">${escapeHtml(currentWord.en)}</h2>
+                ${currentWord.pos ? `<div class="fc-pos">${escapeHtml(currentWord.pos)}</div>` : ''}
+                <div class="fc-back-box">
+                  <div class="fc-zh">${escapeHtml(currentWord.zh)}</div>
+                </div>
+              </div>
+
+              <div class="fc-hint-line">已翻面：请选择掌握程度或滑动切卡</div>
             </div>
           </div>
         </div>
@@ -510,7 +600,7 @@
         </div>
 
         <div class="fc-sub-actions">
-          <button type="button" id="fc-prev-btn" class="btn-ghost">← 上一张</button>
+          <button type="button" id="fc-prev-btn" class="btn-ghost">${ICONS.arrowLeft} 上一张</button>
           <span class="kbd-tip">快捷键：空格翻面 · 1不认识 2模糊 3认识 · S朗读</span>
         </div>
       `
@@ -520,8 +610,11 @@
 
   function attachFlashcardSwipe() {
     const card = document.getElementById('fc-card');
-    const tag = document.getElementById('fc-swipe-tag');
     if (!card) return;
+    const stage = card.closest('.flashcard-stage');
+    const badgeKnow = stage ? stage.querySelector('.swipe-badge-know') : null;
+    const badgeFuzzy = stage ? stage.querySelector('.swipe-badge-fuzzy') : null;
+    const badgeUnknown = stage ? stage.querySelector('.swipe-badge-unknown') : null;
 
     let startX = 0;
     let startY = 0;
@@ -529,79 +622,100 @@
     let dy = 0;
     let tracking = false;
     let moved = false;
+    let flyingOut = false;
 
-    const resetCard = () => {
-      card.classList.remove('dragging', 'swipe-known', 'swipe-unknown', 'swipe-fuzzy');
+    const clearSwipeVisuals = () => {
+      card.classList.remove('is-swiping', 'swipe-known', 'swipe-unknown', 'swipe-fuzzy');
       card.style.transform = '';
-      if (tag) tag.textContent = '';
+      if (badgeKnow) badgeKnow.classList.remove('is-visible');
+      if (badgeFuzzy) badgeFuzzy.classList.remove('is-visible');
+      if (badgeUnknown) badgeUnknown.classList.remove('is-visible');
+    };
+
+    const triggerFlyOut = (flyClass, status) => {
+      flyingOut = true;
+      card.classList.remove('is-swiping');
+      card.style.transform = '';
+      card.classList.add(flyClass);
+      setTimeout(() => {
+        rateFlashcard(status);
+      }, 240);
     };
 
     card.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.speak-btn')) return;
+      if (flyingOut || e.target.closest('.speak-btn')) return;
       tracking = true;
       moved = false;
       startX = e.clientX;
       startY = e.clientY;
       dx = 0;
       dy = 0;
-      card.classList.add('dragging');
     });
 
     card.addEventListener('pointermove', (e) => {
-      if (!tracking) return;
+      if (!tracking || flyingOut) return;
       dx = e.clientX - startX;
       dy = e.clientY - startY;
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+        moved = true;
+        card.classList.add('is-swiping');
+      }
+      if (!moved) return;
 
       card.classList.remove('swipe-known', 'swipe-unknown', 'swipe-fuzzy');
+      if (badgeKnow) badgeKnow.classList.remove('is-visible');
+      if (badgeFuzzy) badgeFuzzy.classList.remove('is-visible');
+      if (badgeUnknown) badgeUnknown.classList.remove('is-visible');
+
+      const flipTransform = state.flashcard.flipped ? ' rotateY(180deg)' : '';
       if (Math.abs(dx) >= Math.abs(dy)) {
         const rot = Math.max(-12, Math.min(12, dx * 0.05));
-        card.style.transform = `translate3d(${dx}px, 0, 0) rotate(${rot}deg)`;
-        if (dx > 45) {
+        card.style.transform = `translate3d(${dx}px, ${dy * 0.18}px, 0) rotate(${rot}deg)${flipTransform}`;
+        if (dx > 36) {
           card.classList.add('swipe-known');
-          if (tag) tag.textContent = '认识 ✓';
-        } else if (dx < -45) {
+          if (badgeKnow) badgeKnow.classList.add('is-visible');
+        } else if (dx < -36) {
           card.classList.add('swipe-unknown');
-          if (tag) tag.textContent = '不认识 ✕';
+          if (badgeUnknown) badgeUnknown.classList.add('is-visible');
         }
       } else if (dy < 0) {
-        card.style.transform = `translate3d(0, ${Math.max(-110, dy)}px, 0)`;
-        if (dy < -45) {
+        const clampedY = Math.max(-120, dy);
+        card.style.transform = `translate3d(${dx * 0.2}px, ${clampedY}px, 0)${flipTransform}`;
+        if (dy < -36) {
           card.classList.add('swipe-fuzzy');
-          if (tag) tag.textContent = '模糊 ?';
+          if (badgeFuzzy) badgeFuzzy.classList.add('is-visible');
         }
+      } else {
+        card.style.transform = `translate3d(0, ${Math.min(40, dy * 0.25)}px, 0)${flipTransform}`;
       }
     });
 
     const finishDrag = () => {
-      if (!tracking) return;
+      if (!tracking || flyingOut) return;
       tracking = false;
-      if (Math.abs(dx) >= Math.abs(dy) && dx > 65) {
-        resetCard();
-        rateFlashcard('known');
+      const THRESHOLD = 80;
+      if (Math.abs(dx) >= Math.abs(dy) && dx > THRESHOLD) {
+        triggerFlyOut('fly-right', 'known');
         return;
       }
-      if (Math.abs(dx) >= Math.abs(dy) && dx < -65) {
-        resetCard();
-        rateFlashcard('unknown');
+      if (Math.abs(dx) >= Math.abs(dy) && dx < -THRESHOLD) {
+        triggerFlyOut('fly-left', 'unknown');
         return;
       }
-      if (Math.abs(dy) > Math.abs(dx) && dy < -65) {
-        resetCard();
-        rateFlashcard('fuzzy');
+      if (Math.abs(dy) > Math.abs(dx) && dy < -THRESHOLD) {
+        triggerFlyOut('fly-up', 'fuzzy');
         return;
       }
-      resetCard();
+      clearSwipeVisuals();
       if (!moved) {
-        state.flashcard.flipped = !state.flashcard.flipped;
-        render();
+        toggleFlashcardFlip();
       }
     };
 
     card.addEventListener('pointerup', finishDrag);
     card.addEventListener('pointercancel', () => {
       tracking = false;
-      resetCard();
+      clearSwipeVisuals();
     });
   }
 
@@ -640,12 +754,12 @@
     return `
       <section class="filter-panel">
         <div class="filter-row">
-          <div class="chip-group">${renderUnitChips(q.unit, 'quiz-unit')}</div>
+          <div class="unit-pills">${renderUnitChips(q.unit, 'quiz-unit')}</div>
         </div>
         <div class="filter-row">
           <select id="quiz-type-select" class="select-sm" aria-label="按题型筛选">
             <option value="all" ${q.type === 'all' ? 'selected' : ''}>全部词型</option>
-            <option value="star" ${q.type === 'star' ? 'selected' : ''}>★ 重点词</option>
+            <option value="star" ${q.type === 'star' ? 'selected' : ''}>重点词</option>
             <option value="plain" ${q.type === 'plain' ? 'selected' : ''}>无星词</option>
             <option value="phrase" ${q.type === 'phrase' ? 'selected' : ''}>短语</option>
           </select>
@@ -666,11 +780,11 @@
         <div class="quiz-card">
           <div class="fc-top">
             <div class="fc-badges">
-              <span class="badge badge-unit">Unit ${word.unit}</span>
+              <span class="badge badge-unit">Unit ${escapeHtml(word.unit)}</span>
               ${renderTypeBadge(word.type)}
               <span class="badge badge-plain">${q.index + 1} / ${q.pool.length}</span>
             </div>
-            <button type="button" class="speak-btn" data-speak="${escapeHtml(word.en)}" aria-label="朗读英文">🔊 读</button>
+            ${renderSpeakButton(word.en, '读')}
           </div>
 
           <div class="quiz-prompt-row">
@@ -685,8 +799,11 @@
               .map((opt, idx) => {
                 let cls = '';
                 if (answered) {
-                  if (opt.isCorrect) cls = 'correct';
-                  else if (idx === q.selectedIndex) cls = 'wrong';
+                  if (opt.isCorrect) {
+                    cls = idx === q.selectedIndex ? 'correct opt-pop' : 'correct';
+                  } else if (idx === q.selectedIndex) {
+                    cls = 'wrong opt-shake';
+                  }
                 }
                 return `
                   <button type="button" class="option-btn ${cls}" data-quiz-opt="${idx}" ${answered ? 'disabled' : ''}>
@@ -701,7 +818,7 @@
           <div class="quiz-footer">
             ${
               answered
-                ? `<button type="button" id="quiz-next-btn" class="btn-primary">下一题 →</button>`
+                ? `<button type="button" id="quiz-next-btn" class="btn-primary">下一题 ${ICONS.arrowRight}</button>`
                 : `<div class="kbd-tip">快捷键：1-4 或 A-D 选择 · S 朗读 · 选完按回车下一题</div>`
             }
           </div>
@@ -753,16 +870,26 @@
   function renderExamView() {
     const ex = state.exam;
     if (ex.phase === 'setup') {
+      const scopeButtons = [
+        ...state.units.map((u) => ({
+          v: String(u.id),
+          label: u.title || `Unit ${u.id}`
+        })),
+        { v: 'all', label: '全部范围' }
+      ];
       return `
         <div class="exam-setup-card">
           <h2 class="exam-setup-title">模拟考试设置</h2>
           <p class="exam-desc">
-            默认抽取 <strong>20 道单词四选一</strong>（约 15 个 ★ 重点词 + 5 个无星词/短语，自动判分）+ <strong>2 道中译英句子</strong>（交卷后对照参考答案与易错点自评）。
+            默认抽取 <strong>20 道单词四选一</strong>（约 15 个重点词 + 5 个无星词/短语，自动判分）+ <strong>2 道中译英句子</strong>（交卷后对照参考答案与易错点自评）。
           </p>
           <div class="scope-grid">
-            <button type="button" class="scope-btn ${ex.scope === '1' ? 'active' : ''}" data-exam-scope="1">Unit 1</button>
-            <button type="button" class="scope-btn ${ex.scope === '2' ? 'active' : ''}" data-exam-scope="2">Unit 2</button>
-            <button type="button" class="scope-btn ${ex.scope === 'all' ? 'active' : ''}" data-exam-scope="all">全部范围</button>
+            ${scopeButtons
+              .map(
+                (s) =>
+                  `<button type="button" class="scope-btn ${ex.scope === s.v ? 'active' : ''}" data-exam-scope="${escapeHtml(s.v)}">${escapeHtml(s.label)}</button>`
+              )
+              .join('')}
           </div>
           <button type="button" id="exam-start-btn" class="btn-primary">开始模拟考试</button>
         </div>
@@ -793,7 +920,7 @@
                 <span class="badge badge-plain">Unit ${q.word.unit}</span>
                 ${renderTypeBadge(q.word.type)}
               </div>
-              <button type="button" class="speak-btn" data-speak="${escapeHtml(q.word.en)}" aria-label="朗读英文">🔊</button>
+              ${renderSpeakButton(q.word.en)}
             </div>
             <div class="quiz-prompt-row" style="margin:10px 0 12px;">
               <div>
@@ -882,7 +1009,7 @@
                 <span class="badge badge-sentence">中译英 ${si + 1}</span>
                 <span class="badge badge-unit">Unit ${s.unit}</span>
               </div>
-              <button type="button" class="speak-btn" data-speak="${escapeHtml(s.answer)}" aria-label="朗读参考答案">🔊 读</button>
+              ${renderSpeakButton(s.answer, '读', '朗读参考答案')}
             </div>
             <div style="font-size:15px;font-weight:700;margin-bottom:6px;">${escapeHtml(s.zh)}</div>
             <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
@@ -927,7 +1054,7 @@
                 <span class="badge ${isRight ? 'badge-known' : 'badge-unknown'}">第 ${qi + 1} 题 · ${isRight ? '正确' : '错误'}</span>
                 <span class="badge badge-unit">Unit ${q.word.unit}</span>
               </div>
-              <button type="button" class="speak-btn" data-speak="${escapeHtml(q.word.en)}" aria-label="朗读英文">🔊</button>
+              ${renderSpeakButton(q.word.en)}
             </div>
             <div style="font-size:18px;font-weight:700;margin-bottom:8px;">
               ${escapeHtml(q.word.en)} <span style="font-size:13px;color:var(--text-muted);font-weight:500;">${escapeHtml(q.word.pos || '')}</span>
@@ -989,12 +1116,12 @@
     return `
       <section class="filter-panel">
         <div class="filter-row">
-          <div class="chip-group">${renderUnitChips(b.unit, 'browse-unit')}</div>
+          <div class="unit-pills">${renderUnitChips(b.unit, 'browse-unit')}</div>
         </div>
         <div class="filter-row">
           <select id="browse-type-select" class="select-sm" aria-label="按题型筛选">
             <option value="all" ${b.type === 'all' ? 'selected' : ''}>全部题型</option>
-            <option value="star" ${b.type === 'star' ? 'selected' : ''}>★ 重点词</option>
+            <option value="star" ${b.type === 'star' ? 'selected' : ''}>重点词</option>
             <option value="plain" ${b.type === 'plain' ? 'selected' : ''}>无星词</option>
             <option value="phrase" ${b.type === 'phrase' ? 'selected' : ''}>短语</option>
             <option value="sentence" ${b.type === 'sentence' ? 'selected' : ''}>句子（中译英）</option>
@@ -1007,13 +1134,13 @@
             <option value="known" ${b.mastery === 'known' ? 'selected' : ''}>认识</option>
           </select>
           <button type="button" id="browse-toggle-ans" class="btn-ghost">
-            ${b.showAnswers ? '🙈 隐藏答案' : '👁️ 显示答案'}
+            ${b.showAnswers ? `${ICONS.eyeOff} 隐藏答案` : `${ICONS.eye} 显示答案`}
           </button>
         </div>
         <div class="search-row">
           <div class="search-input-wrap">
             <input id="browse-search-input" class="search-input" type="search" value="${escapeHtml(b.search)}" placeholder="搜索英文、中文或提示词...">
-            ${b.search ? `<button type="button" id="browse-clear-search" class="clear-btn" aria-label="清空搜索">✕</button>` : ''}
+            ${b.search ? `<button type="button" id="browse-clear-search" class="clear-btn" aria-label="清空搜索">${ICONS.x}</button>` : ''}
           </div>
           <span style="font-size:13px;color:var(--text-muted);white-space:nowrap;">共 ${items.length} 条</span>
         </div>
@@ -1035,7 +1162,7 @@
                             <span class="browse-en">${escapeHtml(w.en)}</span>
                             ${w.pos ? `<span class="browse-pos">${escapeHtml(w.pos)}</span>` : ''}
                           </div>
-                          <button type="button" class="speak-btn" data-speak="${escapeHtml(w.en)}" aria-label="朗读英文">🔊</button>
+                          ${renderSpeakButton(w.en)}
                         </div>
                         ${
                           visible
@@ -1068,7 +1195,7 @@
                           <span class="badge badge-unit">Unit ${s.unit}</span>
                           <span class="badge badge-sentence">中译英</span>
                         </div>
-                        <button type="button" class="speak-btn" data-speak="${escapeHtml(s.answer)}" aria-label="朗读参考答案">🔊</button>
+                        ${renderSpeakButton(s.answer, '', '朗读参考答案')}
                       </div>
                       <div style="margin-top:8px;font-size:15px;font-weight:700;line-height:1.5;">${escapeHtml(s.zh)}</div>
                       <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
@@ -1137,7 +1264,7 @@
         <div style="font-size:13px;color:var(--text-muted);">复制下面这段文字，发送到另一台设备粘贴导入即可恢复进度。</div>
         <textarea id="export-textarea" class="data-textarea" readonly>${escapeHtml(exportedText)}</textarea>
         <div class="btn-row">
-          <button type="button" id="copy-export-btn" class="btn-primary">📋 一键复制进度</button>
+          <button type="button" id="copy-export-btn" class="btn-primary">${ICONS.copy} 一键复制进度</button>
         </div>
       </div>
 
@@ -1148,8 +1275,8 @@
         ${state.importError ? `<div style="color:var(--danger);font-size:13px;margin-bottom:8px;">${escapeHtml(state.importError)}</div>` : ''}
         ${state.importSuccess ? `<div style="color:var(--success);font-size:13px;margin-bottom:8px;">${escapeHtml(state.importSuccess)}</div>` : ''}
         <div class="btn-row">
-          <button type="button" id="import-apply-btn" class="btn-primary">📥 导入并覆盖当前进度</button>
-          <button type="button" id="reset-progress-btn" class="btn-ghost" style="color:var(--danger);">🗑 清空本地进度</button>
+          <button type="button" id="import-apply-btn" class="btn-primary">${ICONS.download} 导入并覆盖当前进度</button>
+          <button type="button" id="reset-progress-btn" class="btn-ghost" style="color:var(--danger);">${ICONS.trash} 清空本地进度</button>
         </div>
       </div>
     `;
@@ -1441,8 +1568,7 @@
       if (state.tab === 'flashcard' && state.flashcard.order.length > 0) {
         if (e.code === 'Space' || e.key === 'Enter') {
           e.preventDefault();
-          state.flashcard.flipped = !state.flashcard.flipped;
-          render();
+          toggleFlashcardFlip();
         } else if (e.key === '1' || e.key === 'ArrowLeft') {
           e.preventDefault();
           rateFlashcard('unknown');
@@ -1460,7 +1586,15 @@
           render();
         } else if (e.key === 's' || e.key === 'S' || e.key === 'r' || e.key === 'R') {
           const word = state.wordMap.get(state.flashcard.order[state.flashcard.index]);
-          if (word) speakEnglish(word.en, document.querySelector('.fc-card .speak-btn'));
+          if (word) {
+            const btnSelector = state.flashcard.flipped
+              ? '.flashcard-back .speak-btn'
+              : '.flashcard-front .speak-btn';
+            speakEnglish(
+              word.en,
+              document.querySelector(btnSelector) || document.querySelector('.flashcard-card .speak-btn')
+            );
+          }
         }
       } else if (state.tab === 'quiz' && state.quiz.pool.length > 0) {
         const keyMap = { '1': 0, '2': 1, '3': 2, '4': 3, a: 0, A: 0, b: 1, B: 1, c: 2, C: 2, d: 3, D: 3 };
@@ -1499,6 +1633,60 @@
     }
   }
 
+  // ---------- Data Loading ----------
+  async function loadUnitsData() {
+    try {
+      const manifestRes = await fetch('./data/units.json');
+      if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status}`);
+      const manifest = await manifestRes.json();
+      if (!manifest || !Array.isArray(manifest.units) || manifest.units.length === 0) {
+        throw new Error('Invalid units manifest');
+      }
+
+      const unitPayloads = await Promise.all(
+        manifest.units.map(async (u) => {
+          const unitRes = await fetch(u.file);
+          if (!unitRes.ok) throw new Error(`HTTP ${unitRes.status} for ${u.file}`);
+          return unitRes.json();
+        })
+      );
+
+      const words = [];
+      const sentences = [];
+      for (const payload of unitPayloads) {
+        if (Array.isArray(payload.words)) words.push(...payload.words);
+        if (Array.isArray(payload.sentences)) sentences.push(...payload.sentences);
+      }
+
+      return {
+        units: manifest.units.map((u) => ({
+          id: u.id,
+          title: u.title || `Unit ${u.id}`,
+          subtitle: u.subtitle || '',
+          file: u.file
+        })),
+        words,
+        sentences
+      };
+    } catch {
+      // Fallback to legacy ./data.json only if units.json fails
+      const res = await fetch('./data.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const words = Array.isArray(data.words) ? data.words : [];
+      const sentences = Array.isArray(data.sentences) ? data.sentences : [];
+      const unitIds = Array.from(
+        new Set([...words.map((w) => w.unit), ...sentences.map((s) => s.unit)].filter((id) => id !== undefined && id !== null))
+      ).sort((a, b) => Number(a) - Number(b));
+
+      return {
+        units: unitIds.map((id) => ({ id, title: `Unit ${id}`, subtitle: '' })),
+        words,
+        sentences
+      };
+    }
+  }
+
   // ---------- Init ----------
   async function init() {
     setupPWA();
@@ -1506,12 +1694,11 @@
     loadProgress();
 
     try {
-      const res = await fetch('./data.json');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const loaded = await loadUnitsData();
+      state.units = loaded.units;
       state.data = {
-        words: Array.isArray(data.words) ? data.words : [],
-        sentences: Array.isArray(data.sentences) ? data.sentences : []
+        words: loaded.words,
+        sentences: loaded.sentences
       };
       state.wordMap = new Map(state.data.words.map((w) => [w.id, w]));
 
