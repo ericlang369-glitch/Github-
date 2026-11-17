@@ -614,20 +614,28 @@ button {
   color: #FFFFFF;
 }
 
-/* Fly-out animations (clean horizontal page slide) */
+/* Fly-out & entrance animations (clean horizontal page slide) */
 .fly-right {
-  animation: flyRight 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: flyRight 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
 }
 
 .fly-left {
-  animation: flyLeft 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: flyLeft 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
 }
 
 .fly-up {
-  animation: flyUp 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: flyUp 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
+}
+
+.enter-from-right {
+  animation: enterFromRight 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.enter-from-left {
+  animation: enterFromLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes flyRight {
@@ -648,6 +656,28 @@ button {
   to {
     transform: translate3d(0, -110%, 0) scale(0.94);
     opacity: 0;
+  }
+}
+
+@keyframes enterFromRight {
+  from {
+    transform: translate3d(48px, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes enterFromLeft {
+  from {
+    transform: translate3d(-48px, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
   }
 }
 
@@ -755,10 +785,24 @@ button {
   color: var(--danger);
 }
 
+.action-btn.btn-unknown.is-active {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
 .btn-fuzzy {
   background: var(--warning-soft);
   border-color: var(--warning-border);
   color: var(--warning);
+}
+
+.action-btn.btn-fuzzy.is-active {
+  background: var(--warning);
+  border-color: var(--warning);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
 }
 
 .btn-known {
@@ -767,12 +811,63 @@ button {
   color: var(--success);
 }
 
+.action-btn.btn-known.is-active {
+  background: var(--success);
+  border-color: var(--success);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
 .fc-sub-actions {
   margin-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fc-autonext-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  min-height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.fc-autonext-toggle:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.fc-autonext-toggle:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft, #EEF2FF);
+  color: var(--primary);
+}
+
+.fc-autonext-toggle input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.sp-top-actions {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .btn-ghost {

@@ -66,7 +66,9 @@
       mastery: 'all',
       order: [],
       index: 0,
-      flipped: false
+      flipped: false,
+      autoNext: false,
+      enterDir: null
     },
     quiz: {
       unit: 'all',
@@ -557,12 +559,26 @@
   }
 
   // ---------- F1 Flashcard View ----------
+  let fcAutoNextTimer = null;
+  let fcFlyOutTimer = null;
+
+  function clearFlashcardTimers() {
+    if (fcAutoNextTimer) {
+      clearTimeout(fcAutoNextTimer);
+      fcAutoNextTimer = null;
+    }
+    if (fcFlyOutTimer) {
+      clearTimeout(fcFlyOutTimer);
+      fcFlyOutTimer = null;
+    }
+  }
+
   function saveFlashcardState() {
     try {
-      const { unit, type, mastery, order, index } = state.flashcard;
+      const { unit, type, mastery, order, index, autoNext } = state.flashcard;
       localStorage.setItem(
         FLASHCARD_STORAGE_KEY,
-        JSON.stringify({ unit, type, mastery, order, index })
+        JSON.stringify({ unit, type, mastery, order, index, autoNext })
       );
     } catch {
       // Ignore storage write errors
@@ -598,6 +614,8 @@
       state.flashcard.order = validOrder;
       state.flashcard.index = clampedIndex;
       state.flashcard.flipped = false;
+      state.flashcard.autoNext = Boolean(parsed.autoNext);
+      state.flashcard.enterDir = null;
       return true;
     } catch {
       return false;
@@ -607,8 +625,10 @@
   function prevFlashcard() {
     const len = state.flashcard.order.length;
     if (len === 0) return;
+    clearFlashcardTimers();
     state.flashcard.index = (state.flashcard.index - 1 + len) % len;
     state.flashcard.flipped = false;
+    state.flashcard.enterDir = 'prev';
     saveFlashcardState();
     render();
   }
@@ -616,13 +636,16 @@
   function nextFlashcard() {
     const len = state.flashcard.order.length;
     if (len === 0) return;
+    clearFlashcardTimers();
     state.flashcard.index = (state.flashcard.index + 1) % len;
     state.flashcard.flipped = false;
+    state.flashcard.enterDir = 'next';
     saveFlashcardState();
     render();
   }
 
   function rebuildFlashcardDeck(keepCurrentId = false) {
+    clearFlashcardTimers();
     const prevId = keepCurrentId ? state.flashcard.order[state.flashcard.index] : null;
     const list = filterWords(state.flashcard.unit, state.flashcard.type, state.flashcard.mastery);
     state.flashcard.order = list.map((w) => w.id);
@@ -632,19 +655,38 @@
       state.flashcard.index = 0;
     }
     state.flashcard.flipped = false;
+    state.flashcard.enterDir = null;
   }
 
   function rateFlashcard(status) {
     const { order, index } = state.flashcard;
     if (order.length === 0) return;
+    clearFlashcardTimers();
     const wordId = order[index];
     setWordMastery(wordId, status);
-
-    // Keep rated card in current deck so "上一张" can return to it with updated badge
-    state.flashcard.index = (index + 1) % order.length;
-    state.flashcard.flipped = false;
     saveFlashcardState();
     render();
+
+    if (!state.flashcard.autoNext) {
+      return;
+    }
+
+    fcAutoNextTimer = setTimeout(() => {
+      fcAutoNextTimer = null;
+      const card = document.getElementById('fc-card');
+      if (card && state.tab === 'flashcard') {
+        card.classList.add('fly-left');
+      }
+      fcFlyOutTimer = setTimeout(() => {
+        fcFlyOutTimer = null;
+        if (state.tab !== 'flashcard' || state.flashcard.order.length === 0) return;
+        state.flashcard.index = (state.flashcard.index + 1) % state.flashcard.order.length;
+        state.flashcard.flipped = false;
+        state.flashcard.enterDir = 'next';
+        saveFlashcardState();
+        render();
+      }, 220);
+    }, 280);
   }
 
   function toggleFlashcardFlip() {
@@ -669,6 +711,10 @@
         ${renderMasteryBadge(currentStatus)}
       `
       : '';
+
+    const enterClass =
+      fc.enterDir === 'next' ? 'enter-from-right' : fc.enterDir === 'prev' ? 'enter-from-left' : '';
+    fc.enterDir = null;
 
     return `
       <section class="filter-panel">
@@ -705,7 +751,7 @@
         <div class="flashcard-stage">
           <span class="swipe-badge swipe-badge-know" aria-hidden="true">${ICONS.arrowLeft} 上一个</span>
           <span class="swipe-badge swipe-badge-unknown" aria-hidden="true">下一个 ${ICONS.arrowRight}</span>
-          <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
+          <div id="fc-card" class="flashcard-card ${fc.flipped ? 'is-flipped' : ''} ${enterClass}" tabindex="0" role="button" aria-label="闪卡，点击翻面">
             <div class="flashcard-front">
               <div class="fc-top">
                 <div class="fc-badges">${badgesHtml}</div>
@@ -742,19 +788,22 @@
         </div>
 
         <div class="fc-actions">
-          <button type="button" class="action-btn btn-unknown" data-rate="unknown">
+          <button type="button" class="action-btn btn-unknown ${currentStatus === 'unknown' ? 'is-active' : ''}" data-rate="unknown">
             <span>不认识</span>
           </button>
-          <button type="button" class="action-btn btn-fuzzy" data-rate="fuzzy">
+          <button type="button" class="action-btn btn-fuzzy ${currentStatus === 'fuzzy' ? 'is-active' : ''}" data-rate="fuzzy">
             <span>模糊</span>
           </button>
-          <button type="button" class="action-btn btn-known" data-rate="known">
+          <button type="button" class="action-btn btn-known ${currentStatus === 'known' ? 'is-active' : ''}" data-rate="known">
             <span>认识</span>
           </button>
         </div>
 
         <div class="fc-sub-actions">
-          <button type="button" id="fc-prev-btn" class="btn-ghost">${ICONS.arrowLeft} 上一张</button>
+          <label class="fc-autonext-toggle">
+            <input type="checkbox" id="fc-autonext-checkbox" ${fc.autoNext ? 'checked' : ''} />
+            <span>标记后自动下一张</span>
+          </label>
           <span class="kbd-tip">快捷键：空格翻面 · 1不认识 2模糊 3认识 · S朗读</span>
         </div>
       `
@@ -791,7 +840,7 @@
       card.classList.add(flyClass);
       setTimeout(() => {
         navFn();
-      }, 190);
+      }, 210);
     };
 
     card.addEventListener('pointerdown', (e) => {
@@ -1030,7 +1079,10 @@
               ${mastery === 'known' ? `<span class="badge badge-known">已掌握</span>` : ''}
               ${mastery === 'fuzzy' ? `<span class="badge badge-fuzzy">需加强</span>` : ''}
             </div>
-            ${sp.revealed ? renderSpeakButton(effectiveAnswer, '读', '朗读参考答案') : ''}
+            <div class="sp-top-actions">
+              <button type="button" class="btn-inline-edit" data-sp-quick-answer>${sp.revealed ? '收起答案' : '看答案'}</button>
+              ${sp.revealed ? renderSpeakButton(effectiveAnswer, '读', '朗读参考答案') : ''}
+            </div>
           </div>
 
           <div class="sp-zh">${escapeHtml(s.zh)}</div>
@@ -1039,7 +1091,7 @@
           <textarea id="sp-user-input" class="sp-textarea" data-sp-draft="${escapeHtml(s.id)}" placeholder="在这里先试着写出英文翻译...">${escapeHtml(userDraft)}</textarea>
 
           <div class="sp-btn-row">
-            <button type="button" id="sp-toggle-answer-btn" class="btn-primary">${sp.revealed ? '隐藏参考答案' : '核对参考答案'}</button>
+            <button type="button" id="sp-toggle-answer-btn" class="btn-primary">${sp.revealed ? '隐藏标准答案' : '查看标准答案'}</button>
             <button type="button" id="sp-clear-draft-btn" class="btn-ghost">清空作答</button>
           </div>
 
@@ -1645,10 +1697,6 @@
         rateFlashcard(rateBtn.dataset.rate);
         return;
       }
-      if (e.target.closest('#fc-prev-btn')) {
-        prevFlashcard();
-        return;
-      }
 
       // Quiz controls (F2)
       const quizUnit = e.target.closest('[data-quiz-unit]');
@@ -1686,7 +1734,7 @@
         showToast('已随机打乱句子顺序');
         return;
       }
-      if (e.target.closest('#sp-toggle-answer-btn')) {
+      if (e.target.closest('#sp-toggle-answer-btn') || e.target.closest('[data-sp-quick-answer]')) {
         state.sentencePractice.revealed = !state.sentencePractice.revealed;
         state.sentencePractice.editingId = null;
         render();
@@ -1949,7 +1997,11 @@
 
     main.addEventListener('change', (e) => {
       const target = e.target;
-      if (target.id === 'fc-type-select') {
+      if (target.id === 'fc-autonext-checkbox') {
+        state.flashcard.autoNext = target.checked;
+        saveFlashcardState();
+        render();
+      } else if (target.id === 'fc-type-select') {
         state.flashcard.type = target.value;
         rebuildFlashcardDeck();
         saveFlashcardState();
