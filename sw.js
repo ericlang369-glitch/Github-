@@ -1,10 +1,13 @@
-const STATIC_CACHE = 'vocab-static-v12';
-const DATA_CACHE = 'vocab-data-v12';
+const STATIC_CACHE = 'vocab-static-v13';
+const DATA_CACHE = 'vocab-data-v13';
 const CORE_ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './app.js',
+  './js/core.js',
+  './js/views-study.js',
+  './js/views-hub.js',
+  './js/main.js',
   './manifest.webmanifest',
   './data/units.json',
   './icons/icon.svg',

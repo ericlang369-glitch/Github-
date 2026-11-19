@@ -1,7 +1,7 @@
 {
   "name": "英语期中背单词",
   "short_name": "背单词",
-  "description": "英语期中复习背单词与中译英自测工具（支持离线使用）",
+  "description": "英语期中复习背单词、拼写听写与中译英自测工具（支持离线使用）",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
