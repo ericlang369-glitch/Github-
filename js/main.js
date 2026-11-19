@@ -1,11 +1,14 @@
 /* =========================================================
-   Vocab App v3 — Main Controller, Event Wiring & Bootstrap
+   Vocab App v4 — Main Controller, Event Wiring & Bootstrap
    Classic static script loaded last after core, views-study, views-hub
    ========================================================= */
 (function () {
   'use strict';
 
   const App = (window.VocabApp = window.VocabApp || {});
+
+  let lastRenderedTab = null;
+  let isApplyingImport = false;
 
   // ---------- Header Theme & Audio Popover ----------
   function updateThemeButton() {
@@ -62,10 +65,15 @@
   }
 
   // ---------- Main Render ----------
-  function render() {
+  function render(options) {
     const { state } = App;
     const main = document.getElementById('app-main');
     if (!main) return;
+
+    const opts = options && typeof options === 'object' ? options : {};
+    const isTabSwitch =
+      Boolean(opts.animate) || (lastRenderedTab !== null && lastRenderedTab !== state.tab);
+    lastRenderedTab = state.tab;
 
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.tab === state.tab);
@@ -87,30 +95,186 @@
       main.innerHTML = App.renderProgressView();
     } else {
       state.tab = 'flashcard';
+      lastRenderedTab = 'flashcard';
       main.innerHTML = App.renderFlashcardView();
       App.attachFlashcardSwipe();
     }
+
+    if (isTabSwitch) {
+      main.classList.remove('view-enter');
+      void main.offsetWidth;
+      main.classList.add('view-enter');
+    } else {
+      main.classList.remove('view-enter');
+    }
+
+    if (typeof App.renderSyncModal === 'function') {
+      App.renderSyncModal();
+    }
   }
 
-  // ---------- Progress Import Helper ----------
-  function handleImportText(rawText, mode) {
+  // ---------- Progress Preview & Import Helpers ----------
+  function buildPreviewSafe(decoded) {
+    if (typeof App.buildImportPreview === 'function') {
+      return App.buildImportPreview(decoded);
+    }
+    const imported = (decoded && decoded.imported) || {};
+    let known = 0;
+    let fuzzy = 0;
+    let unknown = 0;
+    for (const st of Object.values(imported)) {
+      if (st === 'known') known++;
+      else if (st === 'fuzzy') fuzzy++;
+      else if (st === 'unknown') unknown++;
+    }
+    const currentKnown = App.state.data.words.filter(
+      (w) => App.getWordMastery(w.id) === 'known'
+    ).length;
+    return {
+      decoded,
+      counts: {
+        known,
+        fuzzy,
+        unknown,
+        totalWords: known + fuzzy + unknown,
+        sentenceEdits: (decoded && decoded.editsCount) || 0,
+        sentenceMastery: (decoded && decoded.smCount) || 0,
+        days: Object.keys((decoded && decoded.importedDailyLog) || {}).length
+      },
+      mergeDiff: {
+        currentKnown,
+        afterMergeKnown: Math.max(currentKnown, known),
+        addedKnown: Math.max(0, known - currentKnown),
+        upgradedWords: 0,
+        addedEdits: (decoded && decoded.editsCount) || 0
+      },
+      overwriteDiff: {
+        currentKnown,
+        afterOverwriteKnown: known
+      }
+    };
+  }
+
+  function parseTextToPreview(rawText, opts) {
     const { state } = App;
+    const options = opts && typeof opts === 'object' ? opts : {};
+    state.importDraft = String(rawText || '');
     try {
-      const decoded = App.decodeProgressString(rawText);
-      const summary = App.applyImportedProgress(decoded, mode);
-      App.rebuildFlashcardDeck();
-      App.rebuildQuizPool();
-      App.rebuildSpellPool();
-      App.rebuildSentencePool();
-      App.updateHeaderProgress();
+      const decoded = App.decodeProgressString(state.importDraft);
+      state.importPreview = buildPreviewSafe(decoded);
       state.importError = '';
-      state.importSuccess = summary || (mode === 'merge' ? '已合并导入学习进度。' : '已覆盖导入学习进度。');
+      state.importSuccess = '';
       render();
-      App.showToast(mode === 'merge' ? '进度已合并导入' : '进度已覆盖导入');
+      if (options.showToastOnSuccess) {
+        App.showToast('已识别备份进度，请确认导入方式');
+      }
+      return true;
     } catch (err) {
+      state.importPreview = null;
       state.importSuccess = '';
       state.importError = err && err.message ? err.message : '导入失败，请检查文本或文件格式';
       render();
+      return false;
+    }
+  }
+
+  function readFileToPreview(file) {
+    const { state } = App;
+    if (!file) return;
+    state.importFileMeta = {
+      name: file.name || '备份文件',
+      size: Number(file.size) || 0
+    };
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === 'string' ? reader.result : '';
+      parseTextToPreview(text, { showToastOnSuccess: true });
+    };
+    reader.onerror = () => {
+      state.importPreview = null;
+      state.importSuccess = '';
+      state.importError = '读取文件失败，请重试或改为粘贴文本导入。';
+      render();
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  function applyDecodedWithSpinner(decoded, mode, triggerBtn, opts) {
+    const { state } = App;
+    if (isApplyingImport) return;
+    isApplyingImport = true;
+
+    const options = opts && typeof opts === 'object' ? opts : {};
+    const finish = () => {
+      try {
+        const summary = App.applyImportedProgress(decoded, mode);
+        App.rebuildFlashcardDeck();
+        App.rebuildQuizPool();
+        App.rebuildSpellPool();
+        App.rebuildSentencePool();
+        App.updateHeaderProgress();
+
+        state.importPreview = null;
+        state.importDraft = '';
+        state.importFileMeta = null;
+        state.importError = '';
+        state.importSuccess =
+          summary || (mode === 'merge' ? '已合并导入学习进度。' : '已覆盖导入学习进度。');
+        if (options.fromModal) {
+          state.pendingSyncModal = null;
+        }
+        isApplyingImport = false;
+        render();
+        App.showToast(mode === 'merge' ? '进度已合并导入' : '进度已覆盖导入');
+      } catch (err) {
+        isApplyingImport = false;
+        state.importSuccess = '';
+        state.importError = err && err.message ? err.message : '导入失败，请重试';
+        if (options.fromModal) {
+          state.pendingSyncModal = null;
+        }
+        render();
+        App.showToast(state.importError);
+      }
+    };
+
+    if (triggerBtn) {
+      triggerBtn.disabled = true;
+      const spinnerHtml =
+        typeof App.renderBarsSpinner === 'function' ? App.renderBarsSpinner(15) : '';
+      triggerBtn.innerHTML = `${spinnerHtml} 导入中...`;
+      setTimeout(finish, 120);
+    } else {
+      finish();
+    }
+  }
+
+  function handleImportAction(mode, triggerBtn) {
+    const { state } = App;
+    if (state.importPreview && state.importPreview.decoded) {
+      applyDecodedWithSpinner(state.importPreview.decoded, mode, triggerBtn, { fromModal: false });
+      return;
+    }
+
+    const ta = document.getElementById('import-textarea');
+    const rawText = ta ? ta.value : state.importDraft;
+    state.importDraft = String(rawText || '');
+    try {
+      const decoded = App.decodeProgressString(state.importDraft);
+      applyDecodedWithSpinner(decoded, mode, triggerBtn, { fromModal: false });
+    } catch (err) {
+      state.importPreview = null;
+      state.importSuccess = '';
+      state.importError = err && err.message ? err.message : '导入失败，请检查文本或文件格式';
+      render();
+    }
+  }
+
+  function closeSyncModal() {
+    if (!App.state.pendingSyncModal) return;
+    App.state.pendingSyncModal = null;
+    if (typeof App.renderSyncModal === 'function') {
+      App.renderSyncModal();
     }
   }
 
@@ -205,17 +369,63 @@
       bottomNav.addEventListener('click', (e) => {
         const btn = e.target.closest('.nav-btn');
         if (!btn || !btn.dataset.tab) return;
+        const nextTab = btn.dataset.tab;
+        const switched = nextTab !== state.tab;
         if (typeof App.clearFlashcardTimers === 'function') {
           App.clearFlashcardTimers();
         }
         state.audioMenuOpen = false;
-        state.tab = btn.dataset.tab;
+        state.tab = nextTab;
         state.importError = '';
         state.importSuccess = '';
-        render();
+        render({ animate: switched });
         window.scrollTo({ top: 0 });
       });
     }
+
+    // Incoming Sync Modal delegated events (#sync-modal-root)
+    const syncModalRoot = document.getElementById('sync-modal-root');
+    if (syncModalRoot) {
+      syncModalRoot.addEventListener('click', (e) => {
+        const mergeBtn = e.target.closest('#sync-modal-merge-btn');
+        if (mergeBtn) {
+          if (state.pendingSyncModal && state.pendingSyncModal.decoded) {
+            applyDecodedWithSpinner(state.pendingSyncModal.decoded, 'merge', mergeBtn, {
+              fromModal: true
+            });
+          }
+          return;
+        }
+
+        const overwriteBtn = e.target.closest('#sync-modal-overwrite-btn');
+        if (overwriteBtn) {
+          if (state.pendingSyncModal && state.pendingSyncModal.decoded) {
+            applyDecodedWithSpinner(state.pendingSyncModal.decoded, 'overwrite', overwriteBtn, {
+              fromModal: true
+            });
+          }
+          return;
+        }
+
+        if (e.target.closest('#sync-modal-close-btn') || e.target.closest('#sync-modal-x-btn')) {
+          closeSyncModal();
+          return;
+        }
+
+        if (e.target && e.target.classList && e.target.classList.contains('sync-modal-backdrop')) {
+          closeSyncModal();
+        }
+      });
+    }
+
+    // Listen to live hash changes (e.g. clicking a #sync=... link while already open)
+    window.addEventListener('hashchange', () => {
+      if (typeof App.checkIncomingSyncHash === 'function' && App.checkIncomingSyncHash()) {
+        if (typeof App.renderSyncModal === 'function') {
+          App.renderSyncModal();
+        }
+      }
+    });
 
     const main = document.getElementById('app-main');
     if (!main) return;
@@ -237,6 +447,19 @@
         const sub = practiceSubBtn.dataset.practiceSub;
         if (sub && sub !== state.practiceSubTab) {
           state.practiceSubTab = sub;
+          render();
+        }
+        return;
+      }
+
+      // Progress Backup/Sync Slide Tabs switcher
+      const progressSubBtn = e.target.closest('[data-progress-sub]');
+      if (progressSubBtn) {
+        const sub = progressSubBtn.dataset.progressSub;
+        if ((sub === 'sync' || sub === 'manual') && sub !== state.progressSubTab) {
+          state.progressSubTab = sub;
+          state.importError = '';
+          state.importSuccess = '';
           render();
         }
         return;
@@ -579,37 +802,124 @@
         return;
       }
 
-      // ---- Progress & Backup Controls ----
-      if (e.target.closest('#copy-export-btn')) {
-        const ta = document.getElementById('export-textarea');
-        if (!ta) return;
-        Promise.resolve(App.copyTextReliable(ta.value, ta)).then((ok) => {
-          App.showToast(ok ? '已复制进度文本' : '复制受限，请长按文本框手动全选复制');
+      // ---- Progress & Seamless Sync Controls ----
+      const copySyncBtn = e.target.closest('#copy-sync-link-btn');
+      if (copySyncBtn) {
+        const syncUrl =
+          typeof App.buildSyncUrl === 'function'
+            ? App.buildSyncUrl()
+            : `${window.location.origin}${window.location.pathname}#sync=${App.encodeProgressString()}`;
+        Promise.resolve(App.copyTextReliable(syncUrl)).then((ok) => {
+          if (ok) {
+            if (typeof App.flashButtonDone === 'function') {
+              App.flashButtonDone(copySyncBtn, '链接已复制');
+            }
+            App.showToast('同步链接已复制，发到微信或浏览器点开即可合并');
+          } else {
+            App.showToast('复制受限，请改用下方「复制进度码」或下载 .json 备份');
+          }
         });
         return;
       }
-      if (e.target.closest('#download-json-btn')) {
+
+      const copyExportBtn = e.target.closest('#copy-export-btn');
+      if (copyExportBtn) {
+        const ta = document.getElementById('export-textarea');
+        const code = App.encodeProgressString();
+        Promise.resolve(App.copyTextReliable(code, ta)).then((ok) => {
+          if (ok) {
+            if (typeof App.flashButtonDone === 'function') {
+              App.flashButtonDone(copyExportBtn, '进度码已复制');
+            }
+            App.showToast('已复制进度码');
+          } else {
+            App.showToast('复制受限，请展开下方进度码长按全选复制');
+          }
+        });
+        return;
+      }
+
+      const downloadJsonBtn = e.target.closest('#download-json-btn');
+      if (downloadJsonBtn) {
         App.exportProgressJsonFile();
+        if (typeof App.flashButtonDone === 'function') {
+          App.flashButtonDone(downloadJsonBtn, '已开始下载');
+        }
         App.showToast('已开始下载 .json 备份文件');
         return;
       }
-      if (e.target.closest('#import-file-btn')) {
+
+      const pasteClipBtn = e.target.closest('#paste-clipboard-btn');
+      if (pasteClipBtn) {
+        if (
+          typeof navigator === 'undefined' ||
+          !navigator.clipboard ||
+          typeof navigator.clipboard.readText !== 'function'
+        ) {
+          App.showToast('当前浏览器不支持自动读取剪贴板，请长按下方输入框手动粘贴');
+          const ta = document.getElementById('import-textarea');
+          if (ta) ta.focus();
+          return;
+        }
+        navigator.clipboard
+          .readText()
+          .then((clipText) => {
+            if (!clipText || !clipText.trim()) {
+              App.showToast('剪贴板里还没有内容，请先复制同步链接或进度码');
+              return;
+            }
+            parseTextToPreview(clipText, { showToastOnSuccess: true });
+          })
+          .catch(() => {
+            App.showToast('浏览器未授权读取剪贴板，请长按下方输入框手动粘贴');
+            const ta = document.getElementById('import-textarea');
+            if (ta) ta.focus();
+          });
+        return;
+      }
+
+      if (e.target.closest('#parse-import-btn')) {
+        const ta = document.getElementById('import-textarea');
+        const raw = ta ? ta.value : state.importDraft;
+        parseTextToPreview(raw, { showToastOnSuccess: true });
+        return;
+      }
+
+      if (e.target.closest('#import-dropzone') || e.target.closest('#import-file-btn')) {
         const fileInput = document.getElementById('import-file-input');
         if (fileInput) fileInput.click();
         return;
       }
-      if (e.target.closest('#import-merge-btn')) {
-        const ta = document.getElementById('import-textarea');
-        if (!ta) return;
-        handleImportText(ta.value, 'merge');
+
+      if (e.target.closest('#clear-import-file-btn')) {
+        state.importFileMeta = null;
+        state.importPreview = null;
+        state.importDraft = '';
+        state.importError = '';
+        state.importSuccess = '';
+        render();
         return;
       }
-      if (e.target.closest('#import-overwrite-btn')) {
-        const ta = document.getElementById('import-textarea');
-        if (!ta) return;
-        handleImportText(ta.value, 'overwrite');
+
+      if (e.target.closest('#import-clear-preview-btn')) {
+        state.importPreview = null;
+        state.importError = '';
+        render();
         return;
       }
+
+      const importMergeBtn = e.target.closest('#import-merge-btn');
+      if (importMergeBtn) {
+        handleImportAction('merge', importMergeBtn);
+        return;
+      }
+
+      const importOverwriteBtn = e.target.closest('#import-overwrite-btn');
+      if (importOverwriteBtn) {
+        handleImportAction('overwrite', importOverwriteBtn);
+        return;
+      }
+
       if (e.target.closest('#reset-progress-btn')) {
         if (window.confirm('确定要清空所有本地学习进度吗？此操作不可撤销。')) {
           state.progress.mastery = {};
@@ -623,6 +933,9 @@
           state.flashcard.type = 'all';
           state.flashcard.mastery = 'all';
           state.flashcard.lastUndo = null;
+          state.importPreview = null;
+          state.importDraft = '';
+          state.importFileMeta = null;
           App.rebuildFlashcardDeck();
           App.rebuildQuizPool();
           App.rebuildSpellPool();
@@ -634,6 +947,47 @@
           App.showToast('本地进度已清空');
         }
         return;
+      }
+    });
+
+    // ---------- Delegated Drag & Drop + Keyboard for Import Dropzone ----------
+    main.addEventListener('dragenter', (e) => {
+      const dz = e.target.closest && e.target.closest('#import-dropzone');
+      if (!dz) return;
+      e.preventDefault();
+      dz.classList.add('is-dragover');
+    });
+
+    main.addEventListener('dragover', (e) => {
+      const dz = e.target.closest && e.target.closest('#import-dropzone');
+      if (!dz) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+      dz.classList.add('is-dragover');
+    });
+
+    main.addEventListener('dragleave', (e) => {
+      const dz = e.target.closest && e.target.closest('#import-dropzone');
+      if (!dz) return;
+      if (e.relatedTarget && dz.contains(e.relatedTarget)) return;
+      dz.classList.remove('is-dragover');
+    });
+
+    main.addEventListener('drop', (e) => {
+      const dz = e.target.closest && e.target.closest('#import-dropzone');
+      if (!dz) return;
+      e.preventDefault();
+      dz.classList.remove('is-dragover');
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file) return;
+      readFileToPreview(file);
+    });
+
+    main.addEventListener('keydown', (e) => {
+      if (e.target && e.target.id === 'import-dropzone' && (e.key === 'Enter' || e.code === 'Space')) {
+        e.preventDefault();
+        const fileInput = document.getElementById('import-file-input');
+        if (fileInput) fileInput.click();
       }
     });
 
@@ -686,20 +1040,9 @@
         render();
       } else if (target.id === 'import-file-input') {
         const file = target.files && target.files[0];
+        target.value = '';
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const text = typeof reader.result === 'string' ? reader.result : '';
-          target.value = '';
-          handleImportText(text, 'merge');
-        };
-        reader.onerror = () => {
-          target.value = '';
-          state.importSuccess = '';
-          state.importError = '读取文件失败，请重试或改为粘贴文本导入。';
-          render();
-        };
-        reader.readAsText(file, 'utf-8');
+        readFileToPreview(file);
       }
     });
 
@@ -732,6 +1075,8 @@
         App.updateBrowseResultsOnly();
       } else if (target.id === 'spell-input') {
         state.spell.input = target.value;
+      } else if (target.id === 'import-textarea') {
+        state.importDraft = target.value;
       } else if (target.dataset && target.dataset.examSentence) {
         state.exam.sentenceInputs[target.dataset.examSentence] = target.value;
         const bar = document.querySelector('.exam-sticky-bar span strong');
@@ -753,6 +1098,14 @@
 
     // ---------- Global Keyboard Shortcuts ----------
     document.addEventListener('keydown', (e) => {
+      if (state.pendingSyncModal) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeSyncModal();
+        }
+        return;
+      }
+
       if (e.target && e.target.id === 'spell-input') {
         if (e.key === 'Enter' && !e.isComposing) {
           e.preventDefault();
@@ -883,6 +1236,11 @@
       App.rebuildQuizPool();
       App.rebuildSpellPool();
       App.rebuildSentencePool();
+
+      if (typeof App.checkIncomingSyncHash === 'function') {
+        App.checkIncomingSyncHash();
+      }
+
       render();
     } catch (err) {
       const main = document.getElementById('app-main');

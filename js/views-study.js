@@ -573,6 +573,7 @@
   // ---------- Practice Hub (Segmented Control) ----------
   function renderPracticeHubView() {
     const sub = App.state.practiceSubTab || 'quiz';
+    const activeIdx = sub === 'spell' ? 1 : sub === 'exam' ? 2 : 0;
     let bodyHtml = '';
     if (sub === 'spell') {
       bodyHtml = renderSpellView();
@@ -583,7 +584,8 @@
     }
 
     return `
-      <div class="seg-control" role="tablist" aria-label="测验模式">
+      <div class="seg-control" style="--seg-count:3;--seg-idx:${activeIdx}" role="tablist" aria-label="测验模式">
+        <span class="seg-indicator" aria-hidden="true"></span>
         <button type="button" class="seg-btn ${sub === 'quiz' ? 'active' : ''}" data-practice-sub="quiz" role="tab" aria-selected="${sub === 'quiz' ? 'true' : 'false'}">四选一</button>
         <button type="button" class="seg-btn ${sub === 'spell' ? 'active' : ''}" data-practice-sub="spell" role="tab" aria-selected="${sub === 'spell' ? 'true' : 'false'}">拼写听写</button>
         <button type="button" class="seg-btn ${sub === 'exam' ? 'active' : ''}" data-practice-sub="exam" role="tab" aria-selected="${sub === 'exam' ? 'true' : 'false'}">模拟考试</button>

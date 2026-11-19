@@ -1,11 +1,18 @@
 /* =========================================================
-   Vocab App v3 — Hub Views (Sentence Practice, Browse, Progress)
+   Vocab App v4 — Hub Views (Sentence Practice, Browse, Progress & Sync Modal)
    Classic static script attaching Section 3 exports to window.VocabApp
    ========================================================= */
 (function () {
   'use strict';
 
   const App = (window.VocabApp = window.VocabApp || {});
+
+  function formatFileSize(bytes) {
+    const n = Math.max(0, Number(bytes) || 0);
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+  }
 
   // ---------- Sentence Translation Practice View ----------
   function rebuildSentencePool(keepCurrentId = false) {
@@ -156,7 +163,7 @@
     `;
   }
 
-  // ---------- Browse & Search View (IME-safe + Paginated) ----------
+  // ---------- Browse & Search View (IME-safe + Paginated + 3-Band Item One) ----------
   function getBrowseFilteredItems() {
     const { state, getWordMastery, getSentenceAnswer } = App;
     const b = state.browse;
@@ -197,6 +204,7 @@
       MASTERY_LABELS,
       escapeHtml,
       renderTypeBadge,
+      renderMasteryBadge,
       renderSpeakButton,
       highlightHints,
       getSentenceAnswer,
@@ -217,26 +225,36 @@
         if (item.kind === 'word') {
           const w = item.data;
           const visible = b.showAnswers || (b.revealedIds && b.revealedIds.has(w.id));
+          const masteryBadge =
+            typeof renderMasteryBadge === 'function' ? renderMasteryBadge(item.mastery) : '';
           return `
             <article class="browse-item">
               <div class="browse-head">
-                <div>
+                <div class="fc-badges">
+                  <span class="badge badge-unit">Unit ${escapeHtml(w.unit)}</span>
+                  ${renderTypeBadge(w.type)}
+                  ${masteryBadge}
+                </div>
+                ${renderSpeakButton(w.en)}
+              </div>
+              <div class="browse-body" style="margin-top:8px;">
+                <div class="browse-word-line">
                   <span class="browse-en">${escapeHtml(w.en)}</span>
                   ${w.ipa ? `<span class="ipa-text browse-ipa">${escapeHtml(w.ipa)}</span>` : ''}
                   ${w.pos ? `<span class="browse-pos">${escapeHtml(w.pos)}</span>` : ''}
                 </div>
-                ${renderSpeakButton(w.en)}
+                ${
+                  visible
+                    ? `<div class="browse-zh">${escapeHtml(w.zh)}</div>`
+                    : `<div class="browse-zh masked" data-reveal-id="${escapeHtml(w.id)}">点击查看释义</div>`
+                }
               </div>
-              ${
-                visible
-                  ? `<div class="browse-zh">${escapeHtml(w.zh)}</div>`
-                  : `<div class="browse-zh masked" data-reveal-id="${escapeHtml(w.id)}">点击查看释义</div>`
-              }
               <div class="browse-footer">
-                <div class="fc-badges">
-                  <span class="badge badge-unit">Unit ${escapeHtml(w.unit)}</span>
-                  ${renderTypeBadge(w.type)}
-                </div>
+                <span class="browse-meta-hint" style="font-size:12px;color:var(--text-muted);">${
+                  item.mastery && item.mastery !== 'unlearned'
+                    ? `当前：${escapeHtml(MASTERY_LABELS[item.mastery] || item.mastery)}`
+                    : '点右侧快速标记'
+                }</span>
                 <div class="mastery-pills">
                   ${['known', 'fuzzy', 'unknown']
                     .map(
@@ -268,36 +286,38 @@
                 ${renderSpeakButton(ansText, '', '朗读参考答案')}
               </div>
             </div>
-            <div style="margin-top:8px;font-size:15px;font-weight:700;line-height:1.5;">${escapeHtml(s.zh)}</div>
-            <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
-            ${
-              isEditing
-                ? `
-                  <div class="sentence-edit-box">
-                    <textarea id="browse-edit-textarea" class="sentence-edit-textarea" placeholder="输入你认可的标准答案...">${escapeHtml(b.editDraft)}</textarea>
-                    <div class="sentence-edit-actions">
-                      <button type="button" class="btn-primary" data-browse-save="${escapeHtml(s.id)}">保存标准答案</button>
-                      <button type="button" class="btn-ghost" data-browse-cancel>取消</button>
-                      ${edited ? `<button type="button" class="btn-ghost" style="color:var(--danger);" data-browse-reset="${escapeHtml(s.id)}">恢复默认</button>` : ''}
+            <div class="browse-body">
+              <div class="browse-sentence-zh" style="margin-top:8px;font-size:15px;font-weight:700;line-height:1.5;">${escapeHtml(s.zh)}</div>
+              <div class="hint-box">提示词：${escapeHtml(s.hint)}</div>
+              ${
+                isEditing
+                  ? `
+                    <div class="sentence-edit-box">
+                      <textarea id="browse-edit-textarea" class="sentence-edit-textarea" placeholder="输入你认可的标准答案...">${escapeHtml(b.editDraft)}</textarea>
+                      <div class="sentence-edit-actions">
+                        <button type="button" class="btn-primary" data-browse-save="${escapeHtml(s.id)}">保存标准答案</button>
+                        <button type="button" class="btn-ghost" data-browse-cancel>取消</button>
+                        ${edited ? `<button type="button" class="btn-ghost" style="color:var(--danger);" data-browse-reset="${escapeHtml(s.id)}">恢复默认</button>` : ''}
+                      </div>
                     </div>
-                  </div>
-                `
-                : visible
-                ? `
-                  <div class="browse-zh" style="margin-top:10px;padding:8px 10px;background:var(--success-soft);border-radius:8px;">
-                    ${highlightHints(ansText, s.hint)}
-                  </div>
-                  ${
-                    Array.isArray(s.pitfalls) && s.pitfalls.length > 0
-                      ? `<div class="pitfalls-box">
-                          <strong>易错点：</strong>
-                          <ul>${s.pitfalls.map((p) => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
-                        </div>`
-                      : ''
-                  }
-                `
-                : `<div style="margin-top:8px;"><span class="browse-zh masked" data-reveal-id="${escapeHtml(s.id)}">点击查看参考答案与易错点</span></div>`
-            }
+                  `
+                  : visible
+                  ? `
+                    <div class="browse-zh" style="margin-top:10px;padding:8px 10px;background:var(--success-soft);border-radius:8px;">
+                      ${highlightHints(ansText, s.hint)}
+                    </div>
+                    ${
+                      Array.isArray(s.pitfalls) && s.pitfalls.length > 0
+                        ? `<div class="pitfalls-box">
+                            <strong>易错点：</strong>
+                            <ul>${s.pitfalls.map((p) => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+                          </div>`
+                        : ''
+                    }
+                  `
+                  : `<div style="margin-top:8px;"><span class="browse-zh masked" data-reveal-id="${escapeHtml(s.id)}">点击查看参考答案与易错点</span></div>`
+              }
+            </div>
           </article>
         `;
       })
@@ -305,9 +325,9 @@
 
     const loadMoreHtml =
       remaining > 0
-        ? `<button type="button" id="browse-load-more" class="btn-ghost load-more-btn">
+        ? `<div class="browse-load-more-wrap"><button type="button" id="browse-load-more" class="btn-ghost load-more-btn">
             加载更多（剩余 ${remaining} 条）
-          </button>`
+          </button></div>`
         : '';
 
     return `<div class="browse-list">${listHtml}</div>${loadMoreHtml}`;
@@ -365,7 +385,49 @@
     `;
   }
 
-  // ---------- Progress & Backup Dashboard View ----------
+  // ---------- Shared Preview Summary (Inline Preview Card + Sync Modal) ----------
+  function renderImportPreviewBody(preview) {
+    const c = (preview && preview.counts) || {};
+    const m = (preview && preview.mergeDiff) || {};
+    const o = (preview && preview.overwriteDiff) || {};
+
+    const known = Math.max(0, Number(c.known) || 0);
+    const fuzzy = Math.max(0, Number(c.fuzzy) || 0);
+    const unknown = Math.max(0, Number(c.unknown) || 0);
+    const sentenceEdits = Math.max(0, Number(c.sentenceEdits) || 0);
+    const days = Math.max(0, Number(c.days) || 0);
+
+    const currentKnown = Math.max(0, Number(m.currentKnown) || 0);
+    const afterMergeKnown = Math.max(0, Number(m.afterMergeKnown) || 0);
+    const addedKnown = Math.max(0, Number(m.addedKnown) || 0);
+    const upgradedWords = Math.max(0, Number(m.upgradedWords) || 0);
+    const addedEdits = Math.max(0, Number(m.addedEdits) || 0);
+    const afterOverwriteKnown = Math.max(0, Number(o.afterOverwriteKnown) || 0);
+
+    return `
+      <div class="import-preview-stats">
+        <span class="badge badge-known">认识 ${known}</span>
+        <span class="badge badge-fuzzy">模糊 ${fuzzy}</span>
+        <span class="badge badge-unknown">不认识 ${unknown}</span>
+        <span class="badge badge-edited">自定义句译 ${sentenceEdits}</span>
+        <span class="badge badge-plain">打卡 ${days} 天</span>
+      </div>
+      <div class="diff-highlight">
+        <span>本机已认识 <strong>${currentKnown}</strong> → 合并后 <strong>${afterMergeKnown}</strong>${
+          addedKnown > 0 ? ` <strong>(+${addedKnown})</strong>` : ' (+0)'
+        }</span>
+        <span style="width:100%;font-size:12px;font-weight:500;opacity:0.88;">
+          ${
+            upgradedWords > 0 || addedEdits > 0
+              ? `合并将提升 ${upgradedWords} 个词条状态${addedEdits > 0 ? `、同步 ${addedEdits} 条句译` : ''}`
+              : '合并模式仅保留更高掌握度，不会回退本机已有进度'
+          } · 覆盖模式将为 ${afterOverwriteKnown} 词认识
+        </span>
+      </div>
+    `;
+  }
+
+  // ---------- Progress & Seamless Sync Dashboard View ----------
   function renderProgressView() {
     const {
       state,
@@ -439,6 +501,107 @@
     }
 
     const exportedText = encodeProgressString();
+    const progressSub = state.progressSubTab === 'manual' ? 'manual' : 'sync';
+    const subIdx = progressSub === 'manual' ? 1 : 0;
+    const fileMeta = state.importFileMeta;
+    const preview = state.importPreview;
+
+    const statusBannersHtml = `
+      ${
+        state.importError
+          ? `<div class="import-banner error" role="alert">${escapeHtml(state.importError)}</div>`
+          : ''
+      }
+      ${
+        state.importSuccess
+          ? `<div class="import-banner success" role="status">${escapeHtml(state.importSuccess)}</div>`
+          : ''
+      }
+    `;
+
+    const syncPaneHtml = `
+      <div class="sync-sub-panel">
+        <p class="sync-lead">
+          发到微信或电脑浏览器，点开即可弹窗一键合并进度，不用复制粘贴长串代码。
+        </p>
+        <button type="button" id="copy-sync-link-btn" class="btn-primary">
+          ${ICONS.link || ICONS.copy} 复制同步链接
+        </button>
+
+        <div class="sync-secondary-row">
+          <button type="button" id="copy-export-btn" class="btn-ghost">${ICONS.copy} 复制进度码</button>
+          <button type="button" id="download-json-btn" class="btn-ghost">${ICONS.fileDown || ICONS.download} 下载 .json 备份</button>
+        </div>
+
+        ${statusBannersHtml}
+
+        <details class="sync-code-details">
+          <summary>展开原始进度码（VOCAB1）</summary>
+          <textarea id="export-textarea" class="data-textarea" readonly aria-label="导出的进度文本">${escapeHtml(exportedText)}</textarea>
+        </details>
+      </div>
+    `;
+
+    const manualPaneHtml = `
+      <div class="sync-sub-panel">
+        <div id="import-dropzone" class="upload-dropzone" role="button" tabindex="0" aria-label="点击选择或拖拽备份文件">
+          <div class="upload-dropzone-icon">${ICONS.uploadCloud || ICONS.upload}</div>
+          <div class="upload-dropzone-title">点击选择或拖拽 <code>.json</code> / <code>.txt</code> 备份文件</div>
+          <div class="upload-dropzone-sub">读取后先展示合并预览，确认后再写入本机</div>
+        </div>
+        <input type="file" id="import-file-input" accept=".json,.txt,application/json,text/plain" class="hidden" style="display:none;">
+
+        ${
+          fileMeta
+            ? `
+          <div class="file-pill-row">
+            <div class="file-pill-info">
+              ${ICONS.fileJson || ICONS.fileUp || ICONS.upload}
+              <span class="file-pill-name">${escapeHtml(fileMeta.name || '备份文件')}</span>
+              <span class="file-pill-size">${escapeHtml(formatFileSize(fileMeta.size))}</span>
+            </div>
+            <button type="button" id="clear-import-file-btn" class="file-pill-clear" aria-label="清除已选文件" title="清除已选文件">移除</button>
+          </div>
+        `
+            : ''
+        }
+
+        <textarea id="import-textarea" class="data-textarea" placeholder="粘贴同步链接、VOCAB1 进度码或 JSON（微信转发带空格/换行也没关系）">${escapeHtml(state.importDraft || '')}</textarea>
+
+        <div class="import-quick-row">
+          <button type="button" id="paste-clipboard-btn" class="btn-ghost">${ICONS.clipboard || ICONS.copy} 从剪贴板读取并识别</button>
+          <button type="button" id="parse-import-btn" class="btn-ghost">${ICONS.shieldCheck || ICONS.eye} 解析预览</button>
+        </div>
+
+        ${statusBannersHtml}
+
+        ${
+          preview
+            ? `
+          <div class="import-preview-card" role="region" aria-label="导入前预览">
+            <div class="import-preview-head">
+              <span class="import-preview-title">${ICONS.shieldCheck || ICONS.check} 已识别进度备份</span>
+              <span style="font-size:12px;color:var(--text-muted);font-weight:500;">确认后生效</span>
+            </div>
+            ${renderImportPreviewBody(preview)}
+            <div class="import-preview-actions">
+              <button type="button" id="import-merge-btn" class="btn-primary">${ICONS.upload} 确认合并导入（推荐）</button>
+              <div class="import-preview-secondary">
+                <button type="button" id="import-overwrite-btn" class="btn-ghost">${ICONS.download} 确认覆盖导入</button>
+                <button type="button" id="import-clear-preview-btn" class="btn-ghost">取消</button>
+              </div>
+            </div>
+          </div>
+        `
+            : `
+          <div class="import-btn-row">
+            <button type="button" id="import-merge-btn" class="btn-primary">${ICONS.upload} 合并导入（推荐）</button>
+            <button type="button" id="import-overwrite-btn" class="btn-ghost">${ICONS.download} 覆盖导入</button>
+          </div>
+        `
+        }
+      </div>
+    `;
 
     return `
       <div class="card-box">
@@ -512,46 +675,59 @@
 
       <div class="card-box">
         <h2>进度备份与迁移</h2>
-        <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">
-          复制下方文本发给自己（支持微信转发），或下载 <code>.json</code> 备份文件到另一台设备导入。
-        </div>
-        <textarea id="export-textarea" class="data-textarea" readonly aria-label="导出的进度文本">${escapeHtml(exportedText)}</textarea>
-        <div class="btn-row">
-          <button type="button" id="copy-export-btn" class="btn-primary">${ICONS.copy} 一键复制进度</button>
-          <button type="button" id="download-json-btn" class="btn-ghost">${ICONS.fileDown || ICONS.download} 下载 .json 备份</button>
+        <div class="seg-control" style="--seg-count:2;--seg-idx:${subIdx}" role="tablist" aria-label="同步与导入方式">
+          <span class="seg-indicator" aria-hidden="true"></span>
+          <button type="button" class="seg-btn ${progressSub === 'sync' ? 'active' : ''}" data-progress-sub="sync" role="tab" aria-selected="${progressSub === 'sync'}">${ICONS.link || ''} 一键链接同步</button>
+          <button type="button" class="seg-btn ${progressSub === 'manual' ? 'active' : ''}" data-progress-sub="manual" role="tab" aria-selected="${progressSub === 'manual'}">${ICONS.uploadCloud || ICONS.upload} 文件与文本导入</button>
         </div>
 
-        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
-          <h2 style="margin-bottom:6px;">导入进度</h2>
-          <div style="font-size:13px;color:var(--text-muted);line-height:1.5;">
-            支持粘贴 <code>VOCAB1:</code> 编码（即使微信转发带空格、换行或附带文字也能识别），或直接选择 <code>.json</code> 文件导入。
+        ${progressSub === 'sync' ? syncPaneHtml : manualPaneHtml}
+
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+          <button type="button" id="reset-progress-btn" class="btn-ghost" style="color:var(--danger);">${ICONS.trash} 清空本地进度</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ---------- Incoming Sync Link Confirmation Modal ----------
+  function renderSyncModal() {
+    const { state, ICONS } = App;
+    const root = typeof document !== 'undefined' ? document.getElementById('sync-modal-root') : null;
+    const preview = state.pendingSyncModal;
+
+    if (!preview) {
+      if (root) root.innerHTML = '';
+      return '';
+    }
+
+    const html = `
+      <div class="sync-modal-backdrop" id="sync-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
+        <div class="sync-modal">
+          <div class="sync-modal-head">
+            <span class="sync-modal-icon" aria-hidden="true">${ICONS.shieldCheck || ICONS.link || ''}</span>
+            <div style="flex:1;min-width:0;">
+              <h3 id="sync-modal-title" class="sync-modal-title">收到跨设备同步进度</h3>
+              <p class="sync-modal-sub">点下方按钮即可将链接里的进度同步到本设备</p>
+            </div>
+            <button type="button" id="sync-modal-x-btn" class="icon-btn" aria-label="关闭同步弹窗" title="关闭">${ICONS.x}</button>
           </div>
-          <textarea id="import-textarea" class="data-textarea" placeholder="在此粘贴导出的进度文本（含微信转发内容、空格/换行均可自动识别）..."></textarea>
-          <input type="file" id="import-file-input" accept=".json,.txt,application/json,text/plain" class="hidden" style="display:none;">
 
-          ${
-            state.importError
-              ? `<div class="import-banner error" role="alert">${escapeHtml(state.importError)}</div>`
-              : ''
-          }
-          ${
-            state.importSuccess
-              ? `<div class="import-banner success" role="status">${escapeHtml(state.importSuccess)}</div>`
-              : ''
-          }
+          ${renderImportPreviewBody(preview)}
 
-          <div class="import-btn-row">
-            <button type="button" id="import-merge-btn" class="btn-primary">${ICONS.upload} 合并导入（推荐）</button>
-            <button type="button" id="import-overwrite-btn" class="btn-ghost">${ICONS.download} 覆盖导入</button>
-            <button type="button" id="import-file-btn" class="btn-ghost">${ICONS.fileUp || ICONS.upload} 从文件导入</button>
-          </div>
-
-          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
-            <button type="button" id="reset-progress-btn" class="btn-ghost" style="color:var(--danger);">${ICONS.trash} 清空本地进度</button>
+          <div class="sync-modal-actions">
+            <button type="button" id="sync-modal-merge-btn" class="btn-primary">${ICONS.upload} 合并同步（推荐）</button>
+            <div class="sync-modal-sub-actions">
+              <button type="button" id="sync-modal-overwrite-btn" class="btn-ghost">${ICONS.download} 覆盖同步</button>
+              <button type="button" id="sync-modal-close-btn" class="btn-ghost">暂不导入</button>
+            </div>
           </div>
         </div>
       </div>
     `;
+
+    if (root) root.innerHTML = html;
+    return html;
   }
 
   Object.assign(App, {
@@ -561,6 +737,7 @@
     renderBrowseResultsHtml,
     updateBrowseResultsOnly,
     renderBrowseView,
-    renderProgressView
+    renderProgressView,
+    renderSyncModal
   });
 })();
