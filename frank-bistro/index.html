@@ -56,15 +56,14 @@
       height: 100vh;
     }
 
-    /* Tactile archival paper grain */
+    /* Tactile archival paper grain (GPU-light, no full-screen mix-blend-mode) */
     .paper-grain {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 950;
-      opacity: 0.25;
-      mix-blend-mode: multiply;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+      opacity: 0.07;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
     }
 
     /* Warm sunlit portal wash during doorway fly-through */
@@ -4155,8 +4154,22 @@
     }
 
     /* 60FPS GPU Map Rendering Overrides (No SVG or CSS Filters!) */
+    #atlasStage {
+      contain: layout paint style;
+    }
+
+    #atlasStage.is-zooming #atlasLandLayer,
+    #atlasStage.is-zooming #atlasGraticuleLayer {
+      shape-rendering: optimizeSpeed;
+    }
+
     #atlasSvg {
       --pin-inv: 1;
+    }
+
+    #atlasViewport {
+      transform-origin: 0px 0px;
+      will-change: transform;
     }
 
     #atlasPinsLayer .atlas-pin-inner {
@@ -5587,31 +5600,12 @@
               <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(35,30,24,0.075)" stroke-width="1" />
               <line x1="4" y1="0" x2="4" y2="8" stroke="rgba(35,30,24,0.03)" stroke-width="0.8" />
             </pattern>
-            <filter id="atlasInkRough" x="-5%" y="-5%" width="110%" height="110%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" result="noise" />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.25" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-            <filter id="stickerShadow" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="2" dy="3.5" stdDeviation="2.2" flood-color="#191715" flood-opacity="0.34" />
-            </filter>
             <clipPath id="chefFaceClip">
               <ellipse cx="0" cy="-14" rx="14.5" ry="15.5" />
             </clipPath>
             <clipPath id="pinPhotoClip">
               <circle cx="0" cy="0" r="18.5" />
             </clipPath>
-            <filter id="goldSilhouetteFilter" color-interpolation-filters="sRGB">
-              <feColorMatrix type="matrix" values="
-                0.78 0.42 0.12 0 0.10
-                0.56 0.34 0.08 0 0.04
-                0.14 0.10 0.04 0 -0.02
-                0    0    0    1 0" />
-              <feComponentTransfer>
-                <feFuncR type="gamma" amplitude="1.05" exponent="0.95" />
-                <feFuncG type="gamma" amplitude="0.96" exponent="1.02" />
-                <feFuncB type="gamma" amplitude="0.72" exponent="1.25" />
-              </feComponentTransfer>
-            </filter>
           </defs>
 
           <g id="atlasCompass" transform="translate(56, 468) scale(0.82)" opacity="0.24" pointer-events="none">
@@ -6889,9 +6883,22 @@
       let atlasViewport = null;
 
       const atlasSvgDom = document.getElementById('atlasSvg');
+      const atlasViewportDom = document.getElementById('atlasViewport');
+      const atlasStageDom = document.getElementById('atlasStage');
       const chefScaleWrapDom = document.getElementById('chefScaleWrap');
+      const chefGrpDom = document.getElementById('chefBiplaneGroup');
+      const biplaneBodyDom = document.getElementById('biplaneBody');
+      let lastAppliedZoomK = -1;
+      let cachedAtlasStageRect = null;
+
+      function refreshAtlasStageRect() {
+        if (atlasStageDom) cachedAtlasStageRect = atlasStageDom.getBoundingClientRect();
+      }
+
       function updateChefScale(k) {
         currentZoomK = k || 1;
+        if (Math.abs(currentZoomK - lastAppliedZoomK) < 0.004) return;
+        lastAppliedZoomK = currentZoomK;
         const chefInv = 1 / Math.pow(currentZoomK, 0.58);
         const pinInv = 1 / Math.pow(currentZoomK, 0.52);
         if (chefScaleWrapDom) {
@@ -6903,23 +6910,21 @@
       }
 
       function setChefPosition(x, y, headingDeg, inFlight) {
-        const grp = document.getElementById('chefBiplaneGroup');
-        const body = document.getElementById('biplaneBody');
-        if (!grp) return;
-        grp.setAttribute('opacity', '1');
-        grp.classList.toggle('in-flight', Boolean(inFlight));
+        if (!chefGrpDom) return;
+        chefGrpDom.setAttribute('opacity', '1');
+        chefGrpDom.classList.toggle('in-flight', Boolean(inFlight));
         // Offset CheF rank slightly beside the pin when standing so he doesn't cover the food sticker
         const offsetX = inFlight ? 0 : 22 / Math.pow(currentZoomK, 0.55);
         const offsetY = inFlight ? 0 : -4 / Math.pow(currentZoomK, 0.55);
-        grp.setAttribute('transform', 'translate(' + (x + offsetX).toFixed(2) + ',' + (y + offsetY).toFixed(2) + ')');
-        if (body && typeof headingDeg === 'number') {
+        chefGrpDom.setAttribute('transform', 'translate(' + (x + offsetX).toFixed(2) + ',' + (y + offsetY).toFixed(2) + ')');
+        if (biplaneBodyDom && typeof headingDeg === 'number') {
           const flyingWest = Math.abs(headingDeg) > 90;
           if (flyingWest) {
             const bank = Math.max(-24, Math.min(24, (headingDeg > 0 ? 180 - headingDeg : -180 - headingDeg) * -0.55));
-            body.setAttribute('transform', 'scale(-1, 1) rotate(' + bank.toFixed(1) + ')');
+            biplaneBodyDom.setAttribute('transform', 'scale(-1, 1) rotate(' + bank.toFixed(1) + ')');
           } else {
             const bank = Math.max(-24, Math.min(24, headingDeg * 0.55));
-            body.setAttribute('transform', 'scale(1, 1) rotate(' + bank.toFixed(1) + ')');
+            biplaneBodyDom.setAttribute('transform', 'scale(1, 1) rotate(' + bank.toFixed(1) + ')');
           }
         }
       }
@@ -7161,13 +7166,39 @@
           .attr('class', 'atlas-sphere')
           .attr('d', geoPath);
 
+        let pendingZoomTransform = null;
+        let zoomRafId = null;
+
+        function flushAtlasZoomFrame() {
+          zoomRafId = null;
+          if (!pendingZoomTransform) return;
+          const t = pendingZoomTransform;
+          pendingZoomTransform = null;
+          if (atlasViewportDom) {
+            atlasViewportDom.style.transform =
+              'translate3d(' + t.x.toFixed(2) + 'px,' + t.y.toFixed(2) + 'px,0) scale(' + t.k.toFixed(4) + ')';
+          } else {
+            atlasViewport.attr('transform', t);
+          }
+          updateChefScale(t.k);
+          if (typeof positionChefBubble === 'function') positionChefBubble(t);
+        }
+
         atlasZoomBehavior = d3.zoom()
           .scaleExtent([1, 7.5])
           .translateExtent([[-120, -80], [MAP_W + 120, MAP_H + 80]])
+          .on('start', function () {
+            refreshAtlasStageRect();
+            if (atlasStageDom) atlasStageDom.classList.add('is-zooming');
+          })
           .on('zoom', function (event) {
-            atlasViewport.attr('transform', event.transform);
-            updateChefScale(event.transform.k);
-            if (typeof positionChefBubble === 'function') positionChefBubble();
+            pendingZoomTransform = event.transform;
+            if (!zoomRafId) {
+              zoomRafId = requestAnimationFrame(flushAtlasZoomFrame);
+            }
+          })
+          .on('end', function () {
+            if (atlasStageDom) atlasStageDom.classList.remove('is-zooming');
           });
 
         atlasSvg.call(atlasZoomBehavior);
@@ -7310,20 +7341,21 @@
         chefBubble.classList.remove('visible');
       }
 
-      function positionChefBubble() {
+      function positionChefBubble(passedTransform) {
         if (!chefBubble.classList.contains('visible') || !chefPos || !atlasSvg) return;
-        const stageEl = document.getElementById('atlasStage');
-        const svgEl = document.getElementById('atlasSvg');
+        const stageEl = atlasStageDom || document.getElementById('atlasStage');
+        const svgEl = atlasSvgDom || document.getElementById('atlasSvg');
         if (!stageEl || !svgEl) return;
 
-        const transform = d3.zoomTransform(svgEl);
+        const transform = passedTransform || d3.zoomTransform(svgEl);
         const offsetX = 22 / Math.pow(transform.k || 1, 0.55);
         const offsetY = -4 / Math.pow(transform.k || 1, 0.55);
         const svgX = transform.applyX(chefPos[0] + offsetX);
         const svgY = transform.applyY(chefPos[1] + offsetY);
 
-        // Convert SVG viewBox coords (MAP_W x MAP_H with preserveAspectRatio xMidYMid slice) to stage px
-        const rect = stageEl.getBoundingClientRect();
+        // Use cached stage rect during zoom to avoid per-frame synchronous layout reflow
+        const rect = cachedAtlasStageRect || stageEl.getBoundingClientRect();
+        if (!cachedAtlasStageRect) cachedAtlasStageRect = rect;
         const scale = Math.max(rect.width / MAP_W, rect.height / MAP_H);
         const padX = (rect.width - MAP_W * scale) * 0.5;
         const padY = (rect.height - MAP_H * scale) * 0.5;
@@ -7395,7 +7427,10 @@
         castVote(bubbleDish.id, 'down');
       });
 
-      window.addEventListener('resize', positionChefBubble);
+      window.addEventListener('resize', function () {
+        refreshAtlasStageRect();
+        positionChefBubble();
+      });
 
       function renderFrankBoard() {
         // Sort by net likes (up - down) desc, then total upvotes desc, then original order
