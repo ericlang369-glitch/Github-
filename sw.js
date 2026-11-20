@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'vocab-static-v14';
-const DATA_CACHE = 'vocab-data-v14';
+const STATIC_CACHE = 'vocab-static-v15';
+const DATA_CACHE = 'vocab-data-v15';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -46,6 +46,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.includes('/frank-bistro')) return;
 
   // Navigation: network-first with index.html fallback
   if (event.request.mode === 'navigate') {
